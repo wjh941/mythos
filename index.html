@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#08060f">
+  <title>MYTHOS · 神话人格研究所</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="fx"></canvas>
+  <div class="grain"></div>
+  <button id="btn-sound" class="sound-btn" data-action="toggle-sound" aria-label="音效开关">♪</button>
+
+  <main class="app">
+
+    <!-- 首页 -->
+    <section id="view-home" class="view active">
+      <header class="hero">
+        <div class="hero-ornament">✦ ✦ ✦</div>
+        <h1 class="brand">MYTHOS<span>神 格 人 格 研 究 所</span></h1>
+        <p class="hero-sub">西方神话 · 命运符文 · 传世名画<br>8 道题，唤醒你的另一个身份</p>
+      </header>
+
+      <div id="quiz-list" class="quiz-list"></div>
+      <div id="daily-slot" class="quiz-list" style="margin-top: 18px;"></div>
+
+      <footer class="foot">
+        <p>本内容为娱乐向测试 · 与任何心理学诊断无关</p>
+        <p>人格原型均源自公版神话与公版艺术作品</p>
+      </footer>
+    </section>
+
+    <!-- 测试页 -->
+    <section id="view-quiz" class="view">
+      <div id="quiz-body" data-theme="olympus">
+
+        <div id="intro" class="panel intro">
+          <div class="hero-ornament">✦ ✦ ✦</div>
+          <h2 id="qi-title"></h2>
+          <p id="qi-intro" class="intro-text"></p>
+          <p id="qi-meta" class="intro-meta"></p>
+          <button id="btn-start" class="btn btn-gold" data-action="start">开始测试</button>
+          <div class="intro-links">
+            <button id="btn-gallery" class="link-btn" data-action="gallery">✦ <span id="qi-gallery-count">人格图鉴</span></button>
+            <button id="btn-back-home" class="link-btn" data-action="back-home">← 返回神谕所</button>
+          </div>
+        </div>
+
+        <div id="question" class="panel hidden">
+          <div class="q-body">
+            <div class="q-top">
+              <span id="q-theme" class="q-theme"></span>
+              <span id="q-num" class="q-num"></span>
+            </div>
+            <div class="progress"><i id="q-progress"></i></div>
+            <h2 id="q-text"></h2>
+            <div id="q-options" class="options"></div>
+            <button id="q-prev" class="link-btn" data-action="prev">← 上一题</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 结果页 -->
+    <section id="view-result" class="view">
+      <div id="result-body" data-theme="olympus">
+        <div class="panel result-card">
+          <div id="r-sigil" class="r-sigil-wrap"></div>
+          <p class="r-label">—— 你的神话人格 ——</p>
+          <h2 id="r-name" class="r-name"></h2>
+          <p id="r-en" class="r-en"></p>
+          <p id="r-epithet" class="r-epithet"></p>
+          <p id="r-artist" class="r-artist"></p>
+          <div class="r-stats">
+            <p id="r-match" class="r-match"></p>
+            <p id="r-rarity" class="r-rarity"></p>
+          </div>
+          <div id="r-dims" class="r-dims"></div>
+          <div id="r-tags" class="r-tags"></div>
+          <p id="r-desc" class="r-desc"></p>
+          <div class="r-glint-wrap">
+            <h3>✦ 你的神性闪光 ✦</h3>
+            <ul id="r-glint"></ul>
+          </div>
+          <p id="r-quote" class="r-quote"></p>
+        </div>
+
+        <div class="result-actions">
+          <button id="btn-save-card" class="btn btn-gold" data-action="save-card">✦ 保存结果卡</button>
+          <button id="btn-retest" class="btn btn-ghost" data-action="retest">重新测试</button>
+          <button id="btn-result-home" class="link-btn" data-action="back-home">← 返回神谕所</button>
+        </div>
+
+        <div class="r-next-wrap">
+          <h3>—— 解锁你的下一重身份 ——</h3>
+          <div id="r-next"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 每日符文 -->
+    <section id="view-daily" class="view">
+      <div id="d-body" data-theme="runes">
+        <div class="panel result-card daily-panel">
+          <p id="d-date" class="d-date"></p>
+          <p class="r-label">—— 今日全人类共同抽中 ——</p>
+          <div id="d-sigil" class="r-sigil-wrap"></div>
+          <h2 id="d-name" class="r-name"></h2>
+          <p id="d-en" class="r-en"></p>
+          <p id="d-epithet" class="r-epithet"></p>
+          <div class="d-advice-wrap">
+            <h3>✦ 今日神谕 ✦</h3>
+            <p id="d-advice" class="d-advice"></p>
+          </div>
+          <p id="d-streak" class="d-streak"></p>
+        </div>
+
+        <div class="result-actions">
+          <button id="btn-share-daily" class="btn btn-gold" data-action="share-daily">✦ 保存今日符文卡</button>
+          <button id="btn-daily-home" class="link-btn" data-action="back-home">← 返回神谕所</button>
+        </div>
+
+        <div class="r-next-wrap">
+          <h3>—— 想知道自己和哪枚符文共生？ ——</h3>
+          <div id="d-next"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="modal"><div id="modal-content"></div></div>
+
+  <div id="suspense" data-action="skip-suspense">
+    <div class="suspense-ring"></div>
+    <div class="suspense-ring r2"></div>
+    <p id="suspense-text" class="suspense-text">✦ 星轨校准中 ✦</p>
+    <p class="suspense-skip">轻触任意处跳过</p>
+  </div>
+
+  <!-- 上线前：把下面这行改成你的小红书账号名 -->
+  <!-- <script>window.MYTHOS_HANDLE = '@你的小红书账号';</script> -->
+
+  <script src="js/scoring.js"></script>
+  <script src="js/quiz-olympus.js"></script>
+  <script src="js/quiz-runes.js"></script>
+  <script src="js/quiz-paintings.js"></script>
+  <script src="js/sharecard.js"></script>
+  <script src="js/juice.js"></script>
+  <script src="js/engine.js"></script>
+</body>
+</html>
