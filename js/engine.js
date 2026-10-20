@@ -63,6 +63,9 @@
   }
 
   function juice() { return window.MYTHOS_JUICE || null; }
+  function track(name, detail) {
+    if (window.MYTHOS_TRACK) window.MYTHOS_TRACK.event(name, detail);
+  }
 
   function show(view) {
     ['home', 'quiz', 'result', 'daily'].forEach(function (v) {
@@ -107,6 +110,7 @@
 
   /* ---------------- 每日符文页 ---------------- */
   function renderDaily() {
+    track('daily-open');
     var info = dailyInfo();
     var r = info.rune;
     $('#d-body').dataset.theme = 'runes';
@@ -130,6 +134,7 @@
   }
 
   function openDailyShare() {
+    track('daily-share');
     var info = dailyInfo();
     openModal('<h3>正在绘制今日符文卡…</h3><p class="modal-tip">请稍候</p>');
     window.MYTHOS_CARD.drawDaily(info.rune, info.label, info.streak).then(function (url) {
@@ -146,6 +151,7 @@
   }
 
   function copyDailyText() {
+    track('daily-copy');
     var info = dailyInfo();
     var r = info.rune;
     var text = '今日符文是【' + r.name + '】· ' + r.epithet + '❄️ ' + (r.advice || r.quote) + ' 你的今日符文是什么？每天一抽，全网同款！';
@@ -225,6 +231,7 @@
   }
 
   function finish() {
+    track('quiz-complete', state.quiz.id);
     var res = window.MYTHOS_SCORING.score(state.quiz, state.answers);
     state.result = res;
     unlock(state.quiz.id, res.winner.persona.id);
@@ -302,6 +309,7 @@
   /* ---------------- 分享卡 & 文案 ---------------- */
   function openShareModal() {
     var quiz = state.quiz, p = state.result.winner.persona;
+    track('share-card', quiz.id);
     openModal('<h3>正在绘制结果卡…</h3><p class="modal-tip">请稍候</p>');
     window.MYTHOS_CARD.drawAsync(quiz, p, state.result.match).then(function (url) {
       setModal(
@@ -324,6 +332,7 @@
   }
 
   function copyShareText() {
+    track('share-copy', state.quiz.id);
     var text = shareText(state.quiz, state.result.winner.persona);
     var done = function () {
       var b = $('[data-action="copy-text"]');
@@ -340,6 +349,7 @@
 
   /* ---------------- 图鉴 ---------------- */
   function openGallery() {
+    track('gallery-open');
     var quiz = state.quiz;
     var cells = quiz.personas.map(function (p) {
       var on = isUnlocked(quiz.id, p.id);
@@ -366,6 +376,7 @@
       startIntro(window.MYTHOS_QUIZZES.find(function (q) { return q.id === el.dataset.quiz; }));
     },
     'start': function () {
+      track('quiz-start', state.quiz && state.quiz.id);
       $('#intro').classList.add('hidden');
       state.qIndex = 0; state.answers = [];
       renderQuestion('fwd');
@@ -375,7 +386,7 @@
     'gallery': openGallery,
     'back-home': renderHome,
     'save-card': openShareModal,
-    'retest': function () { startIntro(state.quiz); },
+    'retest': function () { track('retest'); startIntro(state.quiz); },
     'copy-text': copyShareText,
     'close-modal': closeModal,
     'open-daily': renderDaily,
@@ -405,6 +416,7 @@
   function init() {
     if (window.__MYTHOS_INITED) return;
     window.__MYTHOS_INITED = true;
+    track('visit');
     if (juice()) {
       juice().init();
       var b = $('#btn-sound');

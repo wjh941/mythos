@@ -140,15 +140,20 @@
     <p class="suspense-skip">轻触任意处跳过</p>
   </div>
 
-  <!-- 上线前：把下面这行改成你的小红书账号名 -->
+  <!-- 上线前必改：把下面两行取消注释并替换成你的账号名/分发链接 -->
   <!-- <script>window.MYTHOS_HANDLE = '@你的小红书账号';</script> -->
+  <!-- <script>window.MYTHOS_QR_URL = 'https://mythos-amber.vercel.app';</script> -->
+  <!-- 可选：GoatCounter 统计（见 README「统计」一节） -->
+  <!-- <script>window.MYTHOS_STATS = { goatcounter: 'https://你的站点.goatcounter.com' };</script> -->
 
+  <script src="js/vendor/qrcode.min.js"></script>
   <script src="js/scoring.js"></script>
   <script src="js/quiz-olympus.js"></script>
   <script src="js/quiz-runes.js"></script>
   <script src="js/quiz-paintings.js"></script>
   <script src="js/sharecard.js"></script>
   <script src="js/juice.js"></script>
+  <script src="js/track.js"></script>
   <script src="js/engine.js"></script>
 </body>
 </html>

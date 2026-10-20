@@ -50,7 +50,10 @@ gh api -X POST repos/{owner}/mythos/pages -f "source[branch]=main" -f "source[pa
 
 - [ ] `index.html` 底部取消注释 `window.MYTHOS_HANDLE`，改成你的小红书账号名
   （显示在所有分享卡底部，是唯一引流入口）
+- [ ] 取消注释 `window.MYTHOS_QR_URL` 并填你的分发链接（分享卡右下二维码指向它，
+  不填则自动用当前部署地址）
 - [ ] （可选）放入 AI 主视觉图，见「五、AI 主视觉接入」
+- [ ] （可选）打开统计，见「九、数据统计」
 - [ ] `node tools/verify.mjs` 跑一遍，确认全部通过
 
 ## 四、如何新增一款测试（10 分钟）
@@ -160,3 +163,24 @@ images/             AI 主视觉目录（可选，见第五节）
 ```
 
 无构建、无依赖、无数据上报；用户数据只存本地 localStorage。
+
+## 九、数据统计（漏斗埋点）
+
+产品内置漏斗事件（`js/track.js`）：`visit → quiz-start → quiz-complete →
+share-card / share-copy`，以及 `daily-open / daily-share / daily-copy`、
+`gallery-open / retest`。未配置后端时事件只镜像在访客本地 localStorage，零上报。
+
+**方案 A · Vercel Web Analytics（推荐，零代码）**：
+打开 Vercel 控制台 → 项目 mythos → Analytics 标签 → Enable。
+在 `*.vercel.app` 域名上会自动生效，事件在 vercel.com/analytics 查看。
+
+**方案 B · GoatCounter（免费、轻量、不依赖 Vercel）**：
+goatcounter.com 注册 → `index.html` 里取消注释并填站点：
+```html
+<script>window.MYTHOS_STATS = { goatcounter: 'https://你的站点.goatcounter.com' };</script>
+```
+
+**看漏斗的方法**：`visit` 到 `quiz-start` 的损耗 = 封面文案问题；
+`quiz-start` 到 `quiz-complete` 的损耗 = 题目太长/太难；
+`quiz-complete` 到 `share-card` 的比例 = 分享率（晒图意愿）。
+每日符文的 `daily-open` 复访曲线 = 回访钩子是否生效。
