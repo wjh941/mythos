@@ -12,6 +12,11 @@ window.MYTHOS_QUIZZES.push({
   tagline: '命运不是预言，是你随身携带的符文',
   intro: '北欧人相信：你此刻抽中的符文，是命运三女神在织机上打下的一个结。8 道题，让属于你的卢恩之链显形——它一直在你手腕上，只等你低头看它一眼。',
   meta: '8 道题 · 8 枚符文 · 约 2 分钟',
+  chapters: [
+    { start: 0, label: '第 一 章 · 铸 造' },
+    { start: 3, label: '第 二 章 · 刻 印' },
+    { start: 6, label: '第 三 章 · 揭 示' }
+  ],
   dims: [
     { key: 'will', label: '意志' },
     { key: 'ins', label: '洞见' },

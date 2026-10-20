@@ -12,6 +12,11 @@ window.MYTHOS_QUIZZES.push({
   tagline: '雷霆、海啸与月光，皆有其主',
   intro: '奥林匹斯的十二张王座里，有一张刻着你的名字。不必祈祷，不必献祭——8 道题，众神只看你的选择。',
   meta: '8 道题 · 12 种神格 · 约 2 分钟',
+  chapters: [
+    { start: 0, label: '第 一 章 · 降 临' },
+    { start: 3, label: '第 二 章 · 试 炼' },
+    { start: 6, label: '第 三 章 · 加 冕' }
+  ],
   dims: [
     { key: 'pow', label: '权柄' },
     { key: 'wis', label: '智略' },

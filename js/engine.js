@@ -191,8 +191,21 @@
     $('#q-text').textContent = quiz.questions[n].q;
     $('#q-progress').style.width = (n / quiz.questions.length * 100) + '%';
 
+    // 进度钻石节点
+    $('#q-nodes').innerHTML = quiz.questions.map(function (_, i) {
+      return '<i class="' + (i < n ? 'done' : i === n ? 'cur' : '') + '"></i>';
+    }).join('');
+
+    // 每题专属符印（轮换 + 描画入场）
+    var deco = quiz.personas[n % quiz.personas.length];
+    var qs = $('#q-sigil');
+    qs.innerHTML = sigilSVG(deco, 'sigil');
+    qs.classList.remove('draw');
+    void qs.offsetWidth;
+    qs.classList.add('draw');
+
     $('#q-options').innerHTML = quiz.questions[n].options.map(function (opt, i) {
-      return '<button class="option" data-action="choose" data-idx="' + i + '">' +
+      return '<button class="option" data-action="choose" data-idx="' + i + '" style="--oi:' + i + '">' +
         '<span class="opt-key">' + 'ABCD'[i] + '</span><span class="opt-text">' + opt.t + '</span></button>';
     }).join('');
     $('#q-prev').style.visibility = n > 0 ? 'visible' : 'hidden';
@@ -202,6 +215,46 @@
     void body.offsetWidth;
     body.classList.add(dir === 'back' ? 'q-back' : 'q-fwd');
     if (juice()) { dir === 'back' ? juice().back() : juice().advance(); }
+  }
+
+  /* ---------------- 章节过场 ---------------- */
+  function chapterFor(idx) {
+    var list = (state.quiz && state.quiz.chapters) || [];
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].start === idx) return list[i];
+    }
+    return null;
+  }
+
+  var chapterTimers = [];
+  var pendingChapterEnd = null;
+
+  function showChapter(ch, done) {
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var el = $('#chapter');
+    if (reduce || !el) { done(); return; }
+    pendingChapterEnd = done;
+    $('#ch-label').textContent = ch.label;
+    el.classList.remove('open');
+    void el.offsetWidth;
+    el.classList.add('open');
+    if (juice()) juice().chapter();
+    chapterTimers.push(setTimeout(endChapter, 1500));
+  }
+
+  function endChapter() {
+    chapterTimers.forEach(clearTimeout);
+    chapterTimers = [];
+    var el = $('#chapter');
+    if (el) el.classList.remove('open');
+    if (pendingChapterEnd) { var d = pendingChapterEnd; pendingChapterEnd = null; d(); }
+  }
+
+  function enterQuestion(dir) {
+    var ch = chapterFor(state.qIndex);
+    if (ch) showChapter(ch, function () { renderQuestion(dir); });
+    else renderQuestion(dir);
   }
 
   function choose(i) {
@@ -219,7 +272,7 @@
       box.classList.remove('locking');
       if (state.qIndex < state.quiz.questions.length - 1) {
         state.qIndex++;
-        renderQuestion('fwd');
+        enterQuestion('fwd');
       } else {
         finish();
       }
@@ -379,7 +432,7 @@
       track('quiz-start', state.quiz && state.quiz.id);
       $('#intro').classList.add('hidden');
       state.qIndex = 0; state.answers = [];
-      renderQuestion('fwd');
+      enterQuestion('fwd');
     },
     'choose': function (el) { choose(Number(el.dataset.idx)); },
     'prev': goPrev,
@@ -417,6 +470,8 @@
     if (window.__MYTHOS_INITED) return;
     window.__MYTHOS_INITED = true;
     track('visit');
+    var chEl = $('#chapter');
+    if (chEl) chEl.addEventListener('click', endChapter);
     if (juice()) {
       juice().init();
       var b = $('#btn-sound');

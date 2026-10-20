@@ -12,6 +12,11 @@ window.MYTHOS_QUIZZES.push({
   tagline: '你不缺少美，缺的是被名画认出',
   intro: '你挂在美术馆墙上的那份人格，一直在等你认领。从情绪到审美，从表达到内心——8 道题，让传世名画认出你。',
   meta: '8 道题 · 8 幅名画 · 约 2 分钟',
+  chapters: [
+    { start: 0, label: '第 一 章 · 起 笔' },
+    { start: 3, label: '第 二 章 · 光 影' },
+    { start: 6, label: '第 三 章 · 落 款' }
+  ],
   dims: [
     { key: 'exp', label: '表现' },
     { key: 'idea', label: '构思' },

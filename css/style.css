@@ -505,3 +505,65 @@ body {
   width: 100%; height: 100%;
   object-fit: cover; border-radius: 50%;
 }
+
+/* ---------------- 章节过场 & 做题节奏 ---------------- */
+#chapter {
+  position: fixed; inset: 0; z-index: 55; display: none;
+  background:
+    radial-gradient(520px 360px at 50% 46%, rgba(90, 70, 160, 0.22), transparent 70%),
+    rgba(5, 4, 12, 0.93);
+  align-items: center; justify-content: center; flex-direction: column;
+  cursor: pointer;
+}
+#chapter.open { display: flex; }
+.ch-label {
+  font-size: 22px; letter-spacing: 8px; color: var(--gold);
+  animation: chIn 1.3s ease both;
+}
+.ch-line {
+  width: 130px; height: 1px; margin-top: 18px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  animation: chLine 1.3s ease both;
+}
+@keyframes chIn { from { opacity: 0; letter-spacing: 18px; } }
+@keyframes chLine { from { width: 0; opacity: 0; } }
+
+/* 每题符印 */
+.q-sigil {
+  text-align: center; color: var(--t-gold, var(--gold));
+  height: 46px; margin-bottom: 4px; opacity: 0.9;
+}
+.q-sigil .sigil { width: 38px; height: 38px; }
+.q-sigil.draw .sigil path {
+  stroke-dasharray: 1; stroke-dashoffset: 1;
+  animation: drawPath 0.9s ease forwards;
+}
+
+/* 进度钻石节点 */
+.q-nodes {
+  display: flex; justify-content: center; gap: 13px;
+  margin-bottom: 16px;
+}
+.q-nodes i {
+  width: 7px; height: 7px; transform: rotate(45deg);
+  background: rgba(255, 255, 255, 0.14);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+.q-nodes i.done { background: var(--t-gold, var(--gold)); opacity: 0.5; }
+.q-nodes i.cur {
+  background: var(--t-gold, var(--gold));
+  box-shadow: 0 0 9px var(--t-gold, var(--gold));
+}
+
+/* 选项发牌式入场 */
+.option {
+  animation: optIn 0.32s ease both;
+  animation-delay: calc(var(--oi, 0) * 60ms);
+}
+@keyframes optIn { from { opacity: 0; transform: translateY(10px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  #chapter { display: none !important; }
+  .option { animation: none; }
+  .q-sigil.draw .sigil path { animation: none; stroke-dashoffset: 0; }
+}

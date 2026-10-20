@@ -130,6 +130,11 @@
     select: function () { tone('sine', 680, 920, 0.09, 0.06); vibrate(9); },
     advance: function () { tone('triangle', 300, 160, 0.12, 0.035); },
     back: function () { tone('triangle', 160, 300, 0.12, 0.035); },
+    /** 章节过场：低钟 + 纯五度 */
+    chapter: function () {
+      tone('sine', 220, null, 0.45, 0.07, 0);
+      tone('sine', 330, null, 0.5, 0.05, 0.12);
+    },
     /** 揭晓琶音；rare 为真时追加高音闪光（稀有人格） */
     reveal: function (rare) {
       vibrate([15, 60, 25]);
