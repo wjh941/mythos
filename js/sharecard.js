@@ -23,6 +23,7 @@
   };
 
   var HANDLE = (typeof window !== 'undefined' && window.MYTHOS_HANDLE) || '@你的小红书账号';
+  var BRAND = (typeof window !== 'undefined' && window.MYTHOS_BRAND) || 'MYTHOS · 神话人格研究所';
 
   function qrText() {
     if (typeof window !== 'undefined' && window.MYTHOS_QR_URL) return window.MYTHOS_QR_URL;
@@ -182,7 +183,7 @@
     var ctx = canvas.getContext('2d');
 
     drawBackdrop(ctx, t);
-    centerText(ctx, 'MYTHOS · 神话人格研究所', 118, '500 30px ' + SERIF, t.gold, 0.9, 6);
+    centerText(ctx, BRAND, 118, '500 30px ' + SERIF, t.gold, 0.9, 6);
     divider(ctx, 164, t.gold);
     centerText(ctx, quiz.title, 210, '500 40px ' + SERIF, t.ink, 0.92, 2);
 
@@ -270,7 +271,7 @@
     var ctx = canvas.getContext('2d');
 
     drawBackdrop(ctx, t);
-    centerText(ctx, 'MYTHOS · 神话人格研究所', 118, '500 30px ' + SERIF, t.gold, 0.9, 6);
+    centerText(ctx, BRAND, 118, '500 30px ' + SERIF, t.gold, 0.9, 6);
     divider(ctx, 164, t.gold);
     centerText(ctx, '今日符文 · ' + dateLabel, 210, '500 44px ' + SERIF, t.ink, 0.92, 3);
 
