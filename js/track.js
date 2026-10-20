@@ -37,10 +37,12 @@
       window.va('event', { name: name });
     } catch (e) {}
     try {
-      if (cfg.goatcounter && navigator.sendBeacon) {
+      if (cfg.goatcounter) {
+        // GoatCounter 官方推荐的免 JS 像素上报（GET，无跨域问题）
         var path = '/' + name + (detail ? '/' + detail : '');
-        navigator.sendBeacon(cfg.goatcounter + '/count?p=' + encodeURIComponent(path) +
-          '&t=' + encodeURIComponent(name) + '&rand=' + Math.random());
+        var px = new Image();
+        px.src = cfg.goatcounter + '/count?p=' + encodeURIComponent(path) +
+          '&t=' + encodeURIComponent(name) + '&rand=' + Math.random();
       }
     } catch (e) {}
   }
