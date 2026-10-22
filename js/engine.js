@@ -211,6 +211,32 @@
       '</div>';
   }
 
+  /* 腐蚀层：feTurbulence + feDisplacementMap 把圆形扭曲成有机墨渍，面积 ∝ 影面浓度 */
+  function corrosionSVG(intensity, seed) {
+    var f = Math.min(0.85, intensity / 100);
+    var W = 360, H = 200;
+    var per = (f * W * H) / 4 / Math.PI;
+    var r = Math.round(Math.sqrt(per) * 1.05) + 6;
+    var pos = [[15, 15], [85, 82], [82, 22], [20, 80]];
+    var circles = pos.map(function (p) {
+      return "<circle cx='" + p[0] + "%' cy='" + p[1] + "%' r='" + r + "' fill='url(#sg)'/>";
+    }).join('');
+    var svg =
+      "<svg xmlns='http://www.w3.org/2000/svg' width='" + W + "' height='" + H + "' viewBox='0 0 " + W + " " + H + "' preserveAspectRatio='none'>" +
+        "<defs>" +
+          "<linearGradient id='sg' x1='0' y1='0' x2='1' y2='1'>" +
+            "<stop offset='0' stop-color='#4a2a78'/><stop offset='0.55' stop-color='#2c1750'/><stop offset='1' stop-color='#190a30'/>" +
+          "</linearGradient>" +
+          "<filter id='er' x='-25%' y='-25%' width='150%' height='150%'>" +
+            "<feTurbulence type='fractalNoise' baseFrequency='0.013 0.017' numOctaves='3' seed='" + seed + "' result='n'/>" +
+            "<feDisplacementMap in='SourceGraphic' in2='n' scale='52' xChannelSelector='R' yChannelSelector='G'/>" +
+          "</filter>" +
+        "</defs>" +
+        "<g filter='url(#er)' opacity='0.97'>" + circles + "</g>" +
+      "</svg>";
+    return "url(\"data:image/svg+xml," + encodeURIComponent(svg) + "\")";
+  }
+
   /* 翻面英雄卡：正面神格（随影面浓度被侵蚀）/ 背面影面 */
   function renderShadowFlip() {
     var box = $('#sh-flip');
@@ -219,12 +245,11 @@
     var d = demonFor(god.id);
     if (!d) { box.innerHTML = ''; return; }
     var intensity = state.shadowIntensity || 40;
-    box.style.setProperty('--corrosion', (intensity / 100).toFixed(2));
-    if (intensity >= 60) box.classList.add('heavy');
+    var seed = 11 + (d.id.length % 7);
     box.innerHTML =
       '<div class="flip-inner">' +
         '<div class="flip-face front">' +
-          '<div class="corrosion"></div>' +
+          '<div class="corrosion" style="background-image:' + corrosionSVG(intensity, seed) + '"></div>' +
           '<span class="corrosion-tag">影面侵蚀 ' + intensity + '%</span>' +
           sigilSVG(god, 'sigil') +
           '<b>神格面 · ' + god.name + '</b>' +
