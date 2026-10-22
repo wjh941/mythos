@@ -211,67 +211,16 @@
       '</div>';
   }
 
-  /* 液体侵蚀层：影面从顶部渗下，深度 ∝ 影面浓度（贝塞尔液指 + 位移扰动 + 悬挂液滴） */
-  function mulberry32(a) {
-    return function () {
-      a |= 0; a = a + 0x6D2B79F5 | 0;
-      var t = Math.imul(a ^ a >>> 15, 1 | a);
-      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-      return ((t ^ t >>> 14) >>> 0) / 4294967296;
-    };
-  }
-
-  function dripSVG(intensity, seed) {
-    var W = 360, H = 200;
-    var rng = mulberry32(seed * 977 + 13);
-    var maxD = H * (0.24 + 0.6 * intensity / 100);
-    var shallow = H * 0.12;
-    var fingers = 4, fw = W / (fingers + 1);
-    var d = 'M0 0 L0 ' + shallow.toFixed(1);
-    var tips = [];
-    for (var i = 0; i < fingers; i++) {
-      var cx = fw * (i + 1) * (0.86 + rng() * 0.28);
-      var depth = shallow + (maxD - shallow) * (0.55 + rng() * 0.45);
-      tips.push([cx, depth]);
-      d += ' L' + (cx - fw * 0.3).toFixed(1) + ' ' + shallow.toFixed(1);
-      d += ' Q ' + cx.toFixed(1) + ' ' + (depth * 2 - shallow).toFixed(1) + ' ' + (cx + fw * 0.3).toFixed(1) + ' ' + shallow.toFixed(1);
-    }
-    d += ' L' + W + ' ' + shallow.toFixed(1) + ' L' + W + ' 0 Z';
-    var drops = '';
-    tips.sort(function (a, b) { return b[1] - a[1]; }).slice(0, 2).forEach(function (tp, i) {
-      drops += '<circle cx="' + tp[0].toFixed(1) + '" cy="' + (tp[1] + 10 + rng() * 14).toFixed(1) + '" r="' + (5 + rng() * 4).toFixed(1) + '" fill="url(#lqg)"/>';
-    });
-    return '<svg width="100%" height="100%" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true">' +
-      '<defs>' +
-        '<linearGradient id="lqg" x1="0" y1="0" x2="0" y2="1">' +
-          '<stop offset="0" stop-color="#4a2a78"/><stop offset="0.6" stop-color="#2c1750"/><stop offset="1" stop-color="#190a30"/>' +
-        '</linearGradient>' +
-        '<filter id="dq" x="-15%" y="-15%" width="130%" height="130%">' +
-          '<feTurbulence type="fractalNoise" baseFrequency="0.02 0.05" numOctaves="2" seed="' + (seed + 3) + '" result="n"/>' +
-          '<feDisplacementMap in="SourceGraphic" in2="n" scale="12" xChannelSelector="R" yChannelSelector="G"/>' +
-        '</filter>' +
-      '</defs>' +
-      '<g filter="url(#dq)">' +
-        '<path d="' + d + '" fill="url(#lqg)" opacity="0.97"/>' + drops +
-      '</g>' +
-    '</svg>';
-  }
-
-  /* 翻面英雄卡：正面神格（影面自顶部渗下，深度随浓度）/ 背面影面 */
+  /* 翻面英雄卡：正面神格 / 背面影面 */
   function renderShadowFlip() {
     var box = $('#sh-flip');
     if (!box) return;
     var god = state.result.winner.persona;
     var d = demonFor(god.id);
     if (!d) { box.innerHTML = ''; return; }
-    var intensity = state.shadowIntensity || 40;
-    var seed = 11 + (d.id.length % 7);
     box.innerHTML =
       '<div class="flip-inner">' +
-        '<div class="flip-face front">' +
-          '<div class="corrosion">' + dripSVG(intensity, seed) + '</div>' +
-          '<span class="corrosion-tag">影面侵蚀 ' + intensity + '%</span>' +
-          sigilSVG(god, 'sigil') +
+        '<div class="flip-face front">' + sigilSVG(god, 'sigil') +
           '<b>神格面 · ' + god.name + '</b>' +
           '<span class="flip-hint">轻触翻面 · 看见另一面</span>' +
         '</div>' +
