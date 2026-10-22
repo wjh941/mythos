@@ -79,16 +79,32 @@ body {
 
 .quiz-card {
   position: relative; overflow: hidden;
-  border: 1px solid var(--line); border-radius: 18px;
+  border: 1px solid transparent; border-radius: 18px;
   padding: 24px 22px 22px;
   background:
-    radial-gradient(420px 200px at 80% -20%, var(--t-glow), transparent 70%),
-    linear-gradient(160deg, var(--t-bg1), var(--t-bg2));
+    radial-gradient(420px 200px at 80% -20%, var(--t-glow), transparent 70%) padding-box,
+    linear-gradient(160deg, var(--t-bg1), var(--t-bg2)) padding-box,
+    linear-gradient(160deg, rgba(247, 230, 174, 0.5), rgba(233, 200, 119, 0.14) 35%, rgba(201, 155, 63, 0.12) 62%, rgba(233, 200, 119, 0.38)) border-box;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   animation: fadeUp 0.6s ease both;
   animation-delay: calc(var(--i) * 0.12s);
-  transition: transform 0.25s ease, border-color 0.25s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-.quiz-card:hover { transform: translateY(-3px); border-color: var(--t-gold); }
+.quiz-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 0 0 26px rgba(233, 200, 119, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+/* 对角鎏金括角 */
+.quiz-card::before, .panel::before,
+.quiz-card::after, .panel::after {
+  content: ""; position: absolute; width: 18px; height: 18px; pointer-events: none;
+  border: 0 solid var(--t-gold, var(--gold)); opacity: 0.75; z-index: 2;
+  transition: opacity 0.25s ease;
+}
+.quiz-card::before, .panel::before { top: 7px; left: 7px; border-top-width: 1px; border-left-width: 1px; }
+.quiz-card::after, .panel::after { bottom: 7px; right: 7px; border-bottom-width: 1px; border-right-width: 1px; }
+.quiz-card:hover::before, .panel:hover::before,
+.quiz-card:hover::after, .panel:hover::after { opacity: 1; }
 
 .qc-watermark {
   position: absolute; right: -26px; bottom: -30px; width: 150px; height: 150px;
@@ -140,11 +156,14 @@ body {
 
 /* ---------------- 测试页 ---------------- */
 .panel {
-  border: 1px solid var(--line); border-radius: 18px;
+  position: relative; overflow: hidden;
+  border: 1px solid transparent; border-radius: 18px;
   padding: 28px 22px;
   background:
-    radial-gradient(420px 240px at 50% 0%, var(--t-glow, rgba(120, 150, 255, 0.14)), transparent 70%),
-    linear-gradient(165deg, var(--t-bg1, #1b2a5e), var(--t-bg2, #0d1330));
+    radial-gradient(420px 240px at 50% 0%, var(--t-glow, rgba(120, 150, 255, 0.14)), transparent 70%) padding-box,
+    linear-gradient(165deg, var(--t-bg1, #1b2a5e), var(--t-bg2, #0d1330)) padding-box,
+    linear-gradient(160deg, rgba(247, 230, 174, 0.45), rgba(233, 200, 119, 0.12) 35%, rgba(201, 155, 63, 0.12) 62%, rgba(233, 200, 119, 0.34)) border-box;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .intro { text-align: center; }
@@ -463,8 +482,6 @@ body {
 }
 
 /* ---------------- 每日符文 & 主视觉 ---------------- */
-.daily-card { border-style: dashed; }
-.daily-card .qc-badge { border-style: dashed; }
 
 .d-date {
   font-size: 13px; letter-spacing: 3px;
