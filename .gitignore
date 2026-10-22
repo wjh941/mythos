@@ -1,3 +1,5 @@
 .vercel
 .env*
 dist/
+.wl-*.log
+.wrangler/
