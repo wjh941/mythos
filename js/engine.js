@@ -80,6 +80,39 @@
     return (window.MYTHOS_SHADOW && window.MYTHOS_SHADOW.byGod[godId]) || null;
   }
 
+  /* ---------------- 神谕档案：结果存档，回访直达 ---------------- */
+  var ARCHIVE_KEY = 'mythos_archive_v1';
+
+  function loadArchive() {
+    try { return JSON.parse(localStorage.getItem(ARCHIVE_KEY) || '[]'); } catch (e) { return []; }
+  }
+
+  function saveToArchive(quiz, res) {
+    var list = loadArchive().filter(function (e) {
+      return !(e.quizId === quiz.id && e.personaId === res.winner.persona.id);
+    });
+    list.unshift({
+      quizId: quiz.id,
+      personaId: res.winner.persona.id,
+      match: res.match,
+      dims: res.dims,
+      ts: Date.now()
+    });
+    try { localStorage.setItem(ARCHIVE_KEY, JSON.stringify(list.slice(0, 12))); } catch (e) {}
+  }
+
+  function openArchiveEntry(ts) {
+    var entry = null;
+    loadArchive().forEach(function (e) { if (e.ts === ts) entry = e; });
+    if (!entry) return;
+    var quiz = window.MYTHOS_QUIZZES.find(function (q) { return q.id === entry.quizId; });
+    var persona = quiz && quiz.personas.find(function (p) { return p.id === entry.personaId; });
+    if (!quiz || !persona) return;
+    state.quiz = quiz;
+    state.result = { totals: {}, winner: { persona: persona }, match: entry.match, dims: entry.dims, ranked: [] };
+    renderResult();
+  }
+
   function renderShadowTeaser() {
     var box = $('#r-shadow');
     if (!box) return;
@@ -341,6 +374,7 @@
 
   /* ---------------- 首页 ---------------- */
   function renderHome() {
+    renderArchiveShelf();
     $('#quiz-list').innerHTML = window.MYTHOS_QUIZZES.map(function (quiz, i) {
       return '<article class="quiz-card theme-' + quiz.theme + '" style="--i:' + i + '">' +
         '<div class="qc-watermark">' + sigilSVG(quiz.personas[0], '') + '</div>' +
@@ -368,6 +402,29 @@
   }
 
   /* ---------------- 每日符文页 ---------------- */
+  function renderArchiveShelf() {
+    var slot = $('#archive-slot');
+    if (!slot) return;
+    var arch = loadArchive();
+    if (!arch.length) { slot.innerHTML = ''; return; }
+    slot.innerHTML =
+      '<h3 class="arch-title">✦ 我 的 神 谕 档 案 ✦</h3>' +
+      '<div class="arch-grid">' +
+      arch.map(function (e) {
+        var quiz = window.MYTHOS_QUIZZES.find(function (q) { return q.id === e.quizId; });
+        var p = quiz && quiz.personas.find(function (x) { return x.id === e.personaId; });
+        if (!quiz || !p) return '';
+        var dt = new Date(e.ts);
+        var label = (dt.getMonth() + 1) + '月' + dt.getDate() + '日';
+        return '<button class="arch-card theme-' + quiz.theme + '" data-action="open-archive" data-ts="' + e.ts + '">' +
+          '<span class="arch-sigil">' + sigilSVG(p, 'sigil') + '</span>' +
+          '<b>' + p.name + '</b>' +
+          '<span class="arch-meta">' + quiz.short + ' · ' + label + '</span>' +
+          '</button>';
+      }).join('') +
+      '</div>';
+  }
+
   function renderDaily() {
     track('daily-open');
     var info = dailyInfo();
@@ -547,6 +604,7 @@
     var res = window.MYTHOS_SCORING.score(state.quiz, state.answers);
     state.result = res;
     unlock(state.quiz.id, res.winner.persona.id);
+    saveToArchive(state.quiz, res);
     runSuspense(renderResult);
   }
 
@@ -707,6 +765,7 @@
     'share-daily': openDailyShare,
     'copy-daily-text': copyDailyText,
     'open-shadow': renderShadow,
+    'open-archive': function (el) { openArchiveEntry(Number(el.dataset.ts)); },
     'open-shadow-unlock': openShadowUnlock,
     'submit-code': submitCode,
     'copy-shop-link': copyShopLink,

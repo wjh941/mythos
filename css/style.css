@@ -546,6 +546,33 @@ body {
 .daily-panel.reveal .d-advice-wrap { animation: fadeUp 0.5s 0.55s ease both; }
 .daily-panel.reveal .d-streak { animation: fadeUp 0.5s 0.7s ease both; }
 
+/* ---------------- 神谕档案架 ---------------- */
+#archive-slot { margin-bottom: 22px; }
+#archive-slot:empty { margin: 0; }
+.arch-title {
+  font-size: 13px; letter-spacing: 4px; font-weight: 500;
+  color: var(--gold); text-align: center; margin-bottom: 14px;
+}
+.arch-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.arch-card {
+  font-family: var(--serif); cursor: pointer;
+  border: 1px solid var(--line); border-radius: 14px;
+  padding: 14px 6px 12px; text-align: center;
+  background:
+    radial-gradient(160px 90px at 50% -10%, var(--t-glow, rgba(120, 150, 255, 0.18)), transparent 70%),
+    linear-gradient(165deg, var(--t-bg1, #1b2a5e), var(--t-bg2, #0d1330));
+  color: var(--ink);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.arch-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
+.arch-card .arch-sigil { display: block; color: var(--t-gold, var(--gold)); }
+.arch-card .arch-sigil .sigil { width: 34px; height: 34px; }
+.arch-card b { display: block; font-size: 13px; margin-top: 6px; letter-spacing: 1px; }
+.arch-card .arch-meta { display: block; font-size: 9.5px; color: var(--ink-dim); margin-top: 3px; letter-spacing: 0.5px; }
+
 /* 结果页主视觉图（persona.art 存在时替换符印） */
 .persona-art {
   width: 100%; height: 100%;
