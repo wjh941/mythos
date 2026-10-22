@@ -654,6 +654,48 @@ body {
   font-size: 10px; letter-spacing: 3px; color: var(--ink-dim);
 }
 
+/* 影面侵蚀层：浓度越高，紫影在神格卡上蔓延越广 */
+.corrosion {
+  position: absolute; inset: 0; pointer-events: none;
+  opacity: var(--corrosion, 0);
+  background:
+    radial-gradient(130px 95px at 14% 10%, rgba(96, 56, 148, 0.8), transparent 68%),
+    radial-gradient(105px 82px at 90% 88%, rgba(78, 44, 122, 0.75), transparent 70%),
+    radial-gradient(72px 56px at 84% 24%, rgba(126, 80, 162, 0.55), transparent 70%),
+    radial-gradient(62px 48px at 22% 84%, rgba(104, 66, 152, 0.5), transparent 70%),
+    linear-gradient(135deg, transparent 40%, rgba(92, 52, 138, 0.3) 56%, transparent 74%);
+}
+.corrosion::after {
+  content: ""; position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='2'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.45 0 0 0 0 0.28 0 0 0 0 0.7 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23c)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay; opacity: 0.5;
+}
+.flip-hero.heavy .corrosion {
+  background:
+    radial-gradient(130px 95px at 14% 10%, rgba(96, 56, 148, 0.9), transparent 68%),
+    radial-gradient(105px 82px at 90% 88%, rgba(78, 44, 122, 0.85), transparent 70%),
+    radial-gradient(150px 110px at 52% 46%, rgba(110, 62, 160, 0.55), transparent 72%),
+    radial-gradient(72px 56px at 84% 24%, rgba(126, 80, 162, 0.6), transparent 70%),
+    radial-gradient(62px 48px at 22% 84%, rgba(104, 66, 152, 0.58), transparent 70%),
+    linear-gradient(135deg, transparent 34%, rgba(92, 52, 138, 0.4) 52%, transparent 70%);
+}
+.corrosion-tag {
+  position: absolute; top: 10px; right: 10px;
+  font-size: 9px; letter-spacing: 2px;
+  color: #d9c2f0; background: rgba(36, 18, 51, 0.72);
+  border: 1px solid rgba(226, 195, 245, 0.35);
+  border-radius: 999px; padding: 3px 10px;
+}
+
+/* 影面入口：选择溯源 */
+.choice-trace { display: flex; flex-direction: column; gap: 10px; margin-bottom: 4px; }
+.trace-item {
+  border: 1px solid rgba(226, 195, 245, 0.22); border-radius: 12px;
+  padding: 10px 14px; text-align: left;
+}
+.trace-item b { display: block; font-size: 12px; color: var(--ink-dim); font-weight: 500; letter-spacing: 1px; }
+.trace-item span { display: block; margin-top: 4px; font-size: 13.5px; color: var(--ink); line-height: 1.6; }
+
 /* 对照条数值标签 + 影面文案 */
 .vb-val {
   flex: none; font-size: 11px; font-style: normal;

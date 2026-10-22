@@ -76,13 +76,6 @@
   function setShadowUnlocked() {
     try { localStorage.setItem(SHADOW_KEY, '1'); } catch (e) {}
   }
-  function deviceId() {
-    try {
-      var k = 'mythos_did', v = localStorage.getItem(k);
-      if (!v) { v = 'D' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem(k, v); }
-      return v;
-    } catch (e) { return 'anon'; }
-  }
   function demonFor(godId) {
     return (window.MYTHOS_SHADOW && window.MYTHOS_SHADOW.byGod[godId]) || null;
   }
@@ -183,9 +176,26 @@
       : (intensity >= 50
         ? '中等偏高——它正在暗处持续进食。'
         : '潜伏型——它很安静，在等你的低谷期。');
+    /* 个性化：影面的入口——引用你在主导维度的真实选择 */
+    var trace = state.answers.map(function (optIdx, q) {
+      var qd = state.quiz.questions[q];
+      if (!qd) return null;
+      var opt = qd.options[optIdx];
+      if (!opt || opt.d !== top.key) return null;
+      return '<div class="trace-item"><b>第 ' + ROMAN[q + 1] + ' 问 · ' + qd.q + '</b><span>你选了「' + opt.t + '」</span></div>';
+    }).filter(Boolean);
+    var traceHtml = '';
+    if (trace.length) {
+      traceHtml =
+        '<h3 class="an-title">✦ 影面的入口 ✦</h3>' +
+        '<div class="choice-trace">' + trace.slice(0, 2).join('') + '</div>' +
+        '<p class="dim-copy" style="text-align:center">这些瞬间，都在给影面喂食。</p>';
+    }
+    state.shadowIntensity = intensity;
     box.innerHTML =
       '<div class="panel analysis-panel">' +
         '<p class="an-note">影面在你最长的维度里进食，在最短的维度里藏身——这是它对你的了解。</p>' +
+        traceHtml +
         '<div class="dual-sigil">' +
           '<div class="ds-item">' + sigilSVG(god, 'sigil') + '<b>神格 · ' + god.name + '</b></div>' +
           '<div class="ds-link"></div>' +
@@ -201,16 +211,22 @@
       '</div>';
   }
 
-  /* 翻面英雄卡：正面神格 / 背面影面 */
+  /* 翻面英雄卡：正面神格（随影面浓度被侵蚀）/ 背面影面 */
   function renderShadowFlip() {
     var box = $('#sh-flip');
     if (!box) return;
     var god = state.result.winner.persona;
     var d = demonFor(god.id);
     if (!d) { box.innerHTML = ''; return; }
+    var intensity = state.shadowIntensity || 40;
+    box.style.setProperty('--corrosion', (intensity / 100).toFixed(2));
+    if (intensity >= 60) box.classList.add('heavy');
     box.innerHTML =
       '<div class="flip-inner">' +
-        '<div class="flip-face front">' + sigilSVG(god, 'sigil') +
+        '<div class="flip-face front">' +
+          '<div class="corrosion"></div>' +
+          '<span class="corrosion-tag">影面侵蚀 ' + intensity + '%</span>' +
+          sigilSVG(god, 'sigil') +
           '<b>神格面 · ' + god.name + '</b>' +
           '<span class="flip-hint">轻触翻面 · 看见另一面</span>' +
         '</div>' +
@@ -247,8 +263,8 @@
     void card.offsetWidth;
     card.classList.add('reveal');
     if (juice()) juice().reveal(true);
-    renderShadowFlip();
     renderShadowAnalysis();
+    renderShadowFlip();
   }
 
   function openShadowUnlock() {
@@ -257,73 +273,17 @@
       '<h3>解锁影之人格</h3>' +
       '<p class="modal-tip">与「' + state.result.winner.persona.name + '」共生的另一面</p>' +
       '<div class="pay-steps">' +
-        '<div class="pay-step"><b>① 前往面包多付款</b><span>限时 6.6 元 · 微信 / 支付宝 · 自动发货</span></div>' +
-        '<div class="pay-step"><b>② 复制支付完成页的「订单号」</b><span>在面包多「我的订单」里随时能找到</span></div>' +
-        '<div class="pay-step"><b>③ 回到这里粘贴订单号</b><span>核验通过立即解锁 · 永久有效</span></div>' +
+        '<div class="pay-step"><b>① 复制购买链接</b><span>浏览器打开，找到「影之人格解锁码」</span></div>' +
+        '<div class="pay-step"><b>② 微信 / 支付宝付款</b><span>限时 6.6 元 · 商品详情内含解锁码</span></div>' +
+        '<div class="pay-step"><b>③ 回到这里输入解锁码</b><span>一次解锁 · 永久有效 · 全部测试通用</span></div>' +
       '</div>' +
-      '<div style="display:flex;gap:8px;">' +
-        '<button class="btn btn-gold pay-copy" data-action="goto-shop" style="flex:1">✦ 前往面包多付款</button>' +
-        '<button class="btn btn-ghost" data-action="copy-shop-link">复制链接</button>' +
-      '</div>' +
-      '<div class="code-row">' +
-        '<input id="order-input" class="code-input" placeholder="粘贴面包多订单号" autocomplete="off" spellcheck="false">' +
-        '<button class="btn btn-ghost" data-action="submit-order">验证解锁</button>' +
-      '</div>' +
-      '<p class="modal-tip" id="code-msg"></p>' +
-      '<p class="modal-tip"><a href="javascript:void(0)" data-action="open-shadow-unlock-code" style="opacity:.7">手里有解锁码？从这里输入 →</a></p>'
-    );
-  }
-
-  function openShadowUnlockCode() {
-    openModal(
-      '<h3>使用解锁码</h3>' +
+      '<button class="btn btn-gold pay-copy" data-action="copy-shop-link">✦ 复制购买链接</button>' +
       '<div class="code-row">' +
         '<input id="code-input" class="code-input" placeholder="输入解锁码" autocomplete="off" spellcheck="false">' +
         '<button class="btn btn-ghost" data-action="submit-code">解锁</button>' +
       '</div>' +
       '<p class="modal-tip" id="code-msg"></p>'
     );
-  }
-
-  function gotoShop() {
-    var url = String(window.MYTHOS_SHOP_URL || '');
-    if (!url) return;
-    track('shadow-shop-goto');
-    var w = window.open(url, '_blank');
-    if (!w) copyShopLink();
-  }
-
-  function submitOrder() {
-    var input = $('#order-input');
-    if (!input) return;
-    var msg = $('#code-msg');
-    var oid = (input.value || '').trim();
-    if (!oid) { msg.textContent = '先粘贴面包多的订单号'; return; }
-    if (!String(window.MYTHOS_MBD_API || '')) { msg.textContent = '订单核验通道未配置——点下方「有解锁码」输入'; return; }
-    var btn = $('[data-action="submit-order"]');
-    btn.disabled = true; btn.textContent = '核验中…';
-    fetch(window.MYTHOS_MBD_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ order_id: oid, device: deviceId() })
-    }).then(function (r) {
-      return r.json().then(function (j) { return { s: r.status, j: j }; });
-    }).then(function (res) {
-      if (res.s === 200 && res.j && res.j.ok) {
-        setShadowUnlocked();
-        track('shadow-unlocked', 'mbd');
-        closeModal();
-        renderShadowTeaser();
-        renderShadow();
-      } else {
-        btn.disabled = false; btn.textContent = '验证解锁';
-        msg.textContent = (res.j && (res.j.detail || res.j.error)) || '核验未通过——确认订单号复制完整，或改用解锁码输入';
-        input.classList.remove('shake'); void input.offsetWidth; input.classList.add('shake');
-      }
-    }).catch(function () {
-      btn.disabled = false; btn.textContent = '验证解锁';
-      msg.textContent = '网络开小差了，再试一次；或改用解锁码输入';
-    });
   }
 
   function submitCode() {
@@ -755,9 +715,6 @@
     'open-shadow': renderShadow,
     'open-shadow-unlock': openShadowUnlock,
     'submit-code': submitCode,
-    'submit-order': submitOrder,
-    'goto-shop': gotoShop,
-    'open-shadow-unlock-code': openShadowUnlockCode,
     'copy-shop-link': copyShopLink,
     'share-shadow': openShadowShare,
     'back-result': function () { show('result'); },
