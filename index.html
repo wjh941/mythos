@@ -89,6 +89,8 @@
           <p id="r-quote" class="r-quote"></p>
         </div>
 
+        <div id="r-shadow"></div>
+
         <div class="result-actions">
           <button id="btn-save-card" class="btn btn-gold" data-action="save-card">✦ 保存结果卡</button>
           <button id="btn-retest" class="btn btn-ghost" data-action="retest">重新测试</button>
@@ -131,6 +133,41 @@
       </div>
     </section>
 
+    <!-- 影之人格（付费解锁） -->
+    <section id="view-shadow" class="view">
+      <div id="shadow-body" data-theme="shadow">
+        <div class="panel result-card" id="shadow-card">
+          <div class="hero-ornament">✦ ✦ ✦</div>
+          <p class="r-label">—— 影之人格 · 与「<span id="sh-god"></span>」共生 ——</p>
+          <div id="sh-sigil" class="r-sigil-wrap"></div>
+          <h2 id="sh-name" class="r-name"></h2>
+          <p id="sh-en" class="r-en"></p>
+          <p id="sh-epithet" class="r-epithet"></p>
+          <p class="shadow-badge">已解锁 · 永久有效</p>
+          <div id="sh-tags" class="r-tags"></div>
+          <p id="sh-desc" class="r-desc"></p>
+          <div class="r-glint-wrap">
+            <h3>✦ 神魔一体两面 ✦</h3>
+            <div class="vs-grid">
+              <div class="vs-col"><b id="sh-god-side"></b><ul id="sh-god-tags" class="vs-list"></ul></div>
+              <div class="vs-col demon"><b id="sh-demon-side"></b><ul id="sh-demon-tags" class="vs-list"></ul></div>
+            </div>
+            <p id="sh-trait" class="sh-trait"></p>
+          </div>
+          <div class="r-glint-wrap">
+            <h3>✦ 驯服你的影 ✦</h3>
+            <p id="sh-taming" class="r-desc"></p>
+          </div>
+          <p id="sh-quote" class="r-quote"></p>
+        </div>
+
+        <div class="result-actions">
+          <button id="btn-share-shadow" class="btn btn-gold" data-action="share-shadow">✦ 保存影之人格卡</button>
+          <button id="btn-back-result" class="link-btn" data-action="back-result">← 返回我的神格</button>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <div id="modal"><div id="modal-content"></div></div>
@@ -155,15 +192,20 @@
   <!-- GoatCounter 统计（账号 wjh941，注册完成即自动生效） -->
   <script>window.MYTHOS_STATS = { goatcounter: 'https://wjh941.goatcounter.com' };</script>
 
+  <!-- 影之人格（付费解锁）：改成你在面包多商品里发的解锁码和商品链接 -->
+  <script>window.MYTHOS_UNLOCK_CODE = 'MEOW-DEMON';</script>
+  <script>window.MYTHOS_SHOP_URL = 'https://mianbaoduo.com/';</script>
+
   <!-- 每次更新 js/css 后把下面所有 ?v= 版本号 +1，避免回访用户吃到旧缓存 -->
   <script src="js/vendor/qrcode.min.js"></script>
   <script src="js/scoring.js?v=6"></script>
   <script src="js/quiz-olympus.js?v=6"></script>
   <script src="js/quiz-runes.js?v=6"></script>
   <script src="js/quiz-paintings.js?v=6"></script>
-  <script src="js/sharecard.js?v=6"></script>
+  <script src="js/quiz-shadow.js?v=6"></script>
+  <script src="js/sharecard.js?v=7"></script>
   <script src="js/juice.js?v=6"></script>
   <script src="js/track.js?v=6"></script>
-  <script src="js/engine.js?v=6"></script>
+  <script src="js/engine.js?v=7"></script>
 </body>
 </html>

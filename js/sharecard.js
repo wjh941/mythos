@@ -19,7 +19,8 @@
   var THEMES = {
     olympus:   { bg1: '#1b2a5e', bg2: '#0b1128', glow: 'rgba(120,150,255,0.20)', gold: '#e9c877', goldDim: 'rgba(233,200,119,0.45)', ink: '#f4ead2' },
     runes:     { bg1: '#152033', bg2: '#070b14', glow: 'rgba(150,200,255,0.16)', gold: '#cfe0ef', goldDim: 'rgba(207,224,239,0.40)', ink: '#eef4fa' },
-    paintings: { bg1: '#152a1f', bg2: '#08110c', glow: 'rgba(140,220,175,0.14)', gold: '#ecc078', goldDim: 'rgba(236,192,120,0.45)', ink: '#f7ecdc' }
+    paintings: { bg1: '#152a1f', bg2: '#08110c', glow: 'rgba(140,220,175,0.14)', gold: '#ecc078', goldDim: 'rgba(236,192,120,0.45)', ink: '#f7ecdc' },
+    shadow:    { bg1: '#241233', bg2: '#0e0618', glow: 'rgba(200,140,255,0.18)', gold: '#e2c3f5', goldDim: 'rgba(226,195,245,0.45)', ink: '#f3ecff' }
   };
 
   var HANDLE = (typeof window !== 'undefined' && window.MYTHOS_HANDLE) || '@你的小红书账号';
@@ -142,8 +143,10 @@
   /**
    * 底部页脚：左侧二维码 + 右侧账号名/引导
    * dividerY: 分隔线位置；QR 盒 150×150，整体位于内框（1388）之上
+   * lines: 右侧两行引导文案（可选，默认通用文案）
    */
-  function drawFooter(ctx, t, dividerY) {
+  function drawFooter(ctx, t, dividerY, lines) {
+    var L = lines || ['扫码直接开测 · 或长按识别', '每天一枚今日符文 · 全网同款'];
     divider(ctx, dividerY, t.gold);
     var box = 150, cx = 225, cy = dividerY + 55 + box / 2;
     cy = Math.min(cy, 1388 - box / 2 - 4);
@@ -170,8 +173,8 @@
     ctx.globalAlpha = 0.66;
     if ('letterSpacing' in ctx) ctx.letterSpacing = '2px';
     ctx.fillStyle = t.ink;
-    ctx.fillText('扫码直接开测 · 或长按识别', tx, cy + 14);
-    ctx.fillText('每天一枚今日符文 · 全网同款', tx, cy + 48);
+    ctx.fillText(L[0], tx, cy + 14);
+    ctx.fillText(L[1], tx, cy + 48);
     ctx.restore();
   }
 
@@ -305,5 +308,47 @@
     return Promise.resolve(canvas.toDataURL('image/png'));
   }
 
-  window.MYTHOS_CARD = { draw: draw, drawAsync: drawAsync, drawDaily: drawDaily };
+  /** 影之人格专用卡（暗紫主题） */
+  function drawShadow(demon, godName) {
+    var t = THEMES.shadow;
+    var canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    var ctx = canvas.getContext('2d');
+
+    drawBackdrop(ctx, t);
+    centerText(ctx, BRAND, 118, '500 30px ' + SERIF, t.gold, 0.9, 6);
+    divider(ctx, 164, t.gold);
+    centerText(ctx, '影之人格 · 你的另一面', 210, '500 44px ' + SERIF, t.ink, 0.92, 3);
+
+    var ringY = 430;
+    ctx.save();
+    ctx.strokeStyle = t.goldDim; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(W / 2, ringY, 175, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([2, 8]); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(W / 2, ringY, 195, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+    drawSigil(ctx, demon.sigil, W / 2, ringY, 200, t.gold, t.goldDim);
+
+    centerText(ctx, '—— 与「' + godName + '」共生 ——', 662, '400 28px ' + SERIF, t.ink, 0.55, 4);
+    var nameGrad = ctx.createLinearGradient(W / 2 - 240, 0, W / 2 + 240, 0);
+    nameGrad.addColorStop(0, '#f2e2ff'); nameGrad.addColorStop(0.5, t.gold); nameGrad.addColorStop(1, '#9a6fd0');
+    centerText(ctx, demon.name + ' ' + demon.en, 740, '700 86px ' + SERIF, nameGrad, 1, 3);
+    centerText(ctx, '「' + demon.epithet + '」', 806, '500 42px ' + SERIF, t.ink, 0.9, 3);
+
+    divider(ctx, 858, t.gold);
+    centerText(ctx, '暗面', 918, '500 32px ' + SERIF, t.gold, 0.95, 6);
+    ctx.font = '400 30px ' + SERIF;
+    var dLines = wrapText(ctx, demon.desc, 820).slice(0, 4);
+    dLines.forEach(function (ln, i) {
+      centerText(ctx, ln, 980 + i * 48, '400 30px ' + SERIF, t.ink, 0.88, 1);
+    });
+    var yTail = 980 + dLines.length * 48 + 16;
+    centerText(ctx, demon.shadowTrait, yTail, '500 28px ' + SERIF, t.gold, 0.85, 2);
+    centerText(ctx, '「 ' + demon.quote + ' 」', yTail + 62, '400 30px ' + SERIF, t.ink, 0.65, 2);
+
+    drawFooter(ctx, t, 1236, ['扫码测出你的神格', '它的另一面，也在这里']);
+    return Promise.resolve(canvas.toDataURL('image/png'));
+  }
+
+  window.MYTHOS_CARD = { draw: draw, drawAsync: drawAsync, drawDaily: drawDaily, drawShadow: drawShadow };
 })();

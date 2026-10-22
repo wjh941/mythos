@@ -67,8 +67,135 @@
     if (window.MYTHOS_TRACK) window.MYTHOS_TRACK.event(name, detail);
   }
 
+  /* ---------------- 影之人格（付费解锁） ---------------- */
+  var SHADOW_KEY = 'mythos_shadow_unlocked';
+
+  function shadowUnlocked() {
+    try { return localStorage.getItem(SHADOW_KEY) === '1'; } catch (e) { return false; }
+  }
+  function setShadowUnlocked() {
+    try { localStorage.setItem(SHADOW_KEY, '1'); } catch (e) {}
+  }
+  function demonFor(godId) {
+    return (window.MYTHOS_SHADOW && window.MYTHOS_SHADOW.byGod[godId]) || null;
+  }
+
+  function renderShadowTeaser() {
+    var box = $('#r-shadow');
+    if (!box) return;
+    var god = state.result.winner.persona;
+    var d = demonFor(god.id);
+    if (!d) { box.innerHTML = ''; return; }
+    var on = shadowUnlocked();
+    box.innerHTML =
+      '<div class="panel shadow-teaser" data-theme="shadow">' +
+        '<p class="st-label">—— 你的神格，还有另一个名字 ——</p>' +
+        '<div class="st-sigil' + (on ? '' : ' blurred') + '">' + sigilSVG(d, 'sigil') + '</div>' +
+        (on
+          ? '<p class="st-quote">「' + d.name + ' · ' + d.epithet + '」已觉醒</p>' +
+            '<button class="btn btn-gold st-btn" data-action="open-shadow">查看影之人格</button>'
+          : '<p class="st-quote">「 ' + d.quote + ' 」</p>' +
+            '<button class="btn btn-gold st-btn" data-action="open-shadow-unlock">✦ 解锁影之人格 · 完整魔格报告</button>' +
+            '<p class="st-price">限时 6.6 元（原价 9.9）· 一次解锁 · 永久有效</p>'
+        ) +
+      '</div>';
+  }
+
+  function renderShadow() {
+    var god = state.result.winner.persona;
+    var d = demonFor(god.id);
+    if (!d || !shadowUnlocked()) { show('result'); return; }
+    track('shadow-view');
+    $('#shadow-body').dataset.theme = 'shadow';
+    $('#sh-god').textContent = god.name;
+    $('#sh-sigil').innerHTML = sigilSVG(d, 'sigil sigil-big');
+    $('#sh-name').textContent = d.name;
+    $('#sh-en').textContent = d.en;
+    $('#sh-epithet').textContent = '「' + d.epithet + '」';
+    $('#sh-tags').innerHTML = d.tags.map(function (t) { return '<span class="tag">' + t + '</span>'; }).join('');
+    $('#sh-desc').textContent = d.desc;
+    $('#sh-god-side').textContent = '神格面 · ' + god.name;
+    $('#sh-god-tags').innerHTML = god.tags.map(function (t) { return '<li>' + t + '</li>'; }).join('');
+    $('#sh-demon-side').textContent = '影面 · ' + d.name;
+    $('#sh-demon-tags').innerHTML = d.tags.map(function (t) { return '<li>' + t + '</li>'; }).join('');
+    $('#sh-trait').textContent = d.shadowTrait;
+    $('#sh-taming').textContent = d.taming;
+    $('#sh-quote').textContent = '「 ' + d.quote + ' 」';
+    show('shadow');
+    var card = $('#shadow-card');
+    card.classList.remove('reveal');
+    void card.offsetWidth;
+    card.classList.add('reveal');
+    if (juice()) juice().reveal(true);
+  }
+
+  function openShadowUnlock() {
+    track('shadow-pay-click');
+    openModal(
+      '<h3>解锁影之人格</h3>' +
+      '<p class="modal-tip">与「' + state.result.winner.persona.name + '」共生的另一面</p>' +
+      '<div class="pay-steps">' +
+        '<div class="pay-step"><b>① 复制购买链接</b><span>浏览器打开，找到「影之人格解锁码」</span></div>' +
+        '<div class="pay-step"><b>② 微信 / 支付宝付款</b><span>限时 6.6 元 · 商品详情内含解锁码</span></div>' +
+        '<div class="pay-step"><b>③ 回到这里输入解锁码</b><span>一次解锁 · 永久有效 · 全部测试通用</span></div>' +
+      '</div>' +
+      '<button class="btn btn-gold pay-copy" data-action="copy-shop-link">✦ 复制购买链接</button>' +
+      '<div class="code-row">' +
+        '<input id="code-input" class="code-input" placeholder="输入解锁码" autocomplete="off" spellcheck="false">' +
+        '<button class="btn btn-ghost" data-action="submit-code">解锁</button>' +
+      '</div>' +
+      '<p class="modal-tip" id="code-msg"></p>'
+    );
+  }
+
+  function submitCode() {
+    var input = $('#code-input');
+    if (!input) return;
+    var val = (input.value || '').trim().toUpperCase();
+    var valid = String(window.MYTHOS_UNLOCK_CODE || '').toUpperCase().split(',').map(function (s) { return s.trim(); });
+    var msg = $('#code-msg');
+    if (!val) { msg.textContent = '先输入解锁码哦'; return; }
+    if (valid.indexOf(val) === -1) {
+      msg.textContent = '解锁码不对——检查一下，或回上一步重新复制购买链接';
+      input.classList.remove('shake'); void input.offsetWidth; input.classList.add('shake');
+      return;
+    }
+    setShadowUnlocked();
+    track('shadow-unlocked');
+    closeModal();
+    renderShadowTeaser();
+    renderShadow();
+  }
+
+  function copyShopLink() {
+    var url = String(window.MYTHOS_SHOP_URL || '');
+    if (!url) return;
+    var b = $('[data-action="copy-shop-link"]');
+    var done = function () { if (b) { b.textContent = '已复制 ✓ 去浏览器打开付款'; setTimeout(function () { b.textContent = '✦ 复制购买链接'; }, 2200); } };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done);
+    else { var ta = document.createElement('textarea'); ta.value = url; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); done(); }
+  }
+
+  function openShadowShare() {
+    track('shadow-share');
+    var god = state.result.winner.persona;
+    var d = demonFor(god.id);
+    if (!d) return;
+    openModal('<h3>正在绘制影之人格卡…</h3><p class="modal-tip">请稍候</p>');
+    window.MYTHOS_CARD.drawShadow(d, god.name).then(function (url) {
+      setModal(
+        '<h3>保存影之人格卡</h3>' +
+        '<p class="modal-tip">手机长按图片保存 / 电脑右键另存为</p>' +
+        '<img class="share-img" src="' + url + '" alt="影之人格卡">' +
+        '<div class="modal-actions">' +
+        '<a class="btn btn-gold" download="mythos-shadow-' + d.id + '.png" href="' + url + '">下载图片</a>' +
+        '</div>'
+      );
+    });
+  }
+
   function show(view) {
-    ['home', 'quiz', 'result', 'daily'].forEach(function (v) {
+    ['home', 'quiz', 'result', 'daily', 'shadow'].forEach(function (v) {
       $('#view-' + v).classList.toggle('active', v === view);
     });
     window.scrollTo(0, 0);
@@ -330,6 +457,8 @@
     card.classList.add('reveal');
     var rareNum = parseInt(p.rarity, 10);
     if (juice()) juice().reveal(rareNum > 0 && rareNum <= 2);
+
+    renderShadowTeaser();
   }
 
   /* ---------------- 揭晓过场 ---------------- */
@@ -445,6 +574,12 @@
     'open-daily': renderDaily,
     'share-daily': openDailyShare,
     'copy-daily-text': copyDailyText,
+    'open-shadow': renderShadow,
+    'open-shadow-unlock': openShadowUnlock,
+    'submit-code': submitCode,
+    'copy-shop-link': copyShopLink,
+    'share-shadow': openShadowShare,
+    'back-result': function () { show('result'); },
     'skip-suspense': endSuspense,
     'toggle-sound': function () {
       if (!juice()) return;
