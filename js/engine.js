@@ -224,31 +224,23 @@
   function dripSVG(intensity, seed) {
     var W = 360, H = 200;
     var rng = mulberry32(seed * 977 + 13);
-    var maxD = H * (0.2 + 0.68 * intensity / 100);
-    var base = H * 0.1;
-    var n = 26, pts = [], i, t, y;
-    for (i = 0; i <= n; i++) {
-      t = i / n;
-      y = base + (maxD - base) * (0.35 + 0.65 * Math.abs(Math.sin(t * Math.PI * 2.6 + seed)));
-      y += rng() * 8;
-      pts.push([t * W, Math.min(y, H * 0.88)]);
+    var maxD = H * (0.24 + 0.6 * intensity / 100);
+    var shallow = H * 0.12;
+    var fingers = 4, fw = W / (fingers + 1);
+    var d = 'M0 0 L0 ' + shallow.toFixed(1);
+    var tips = [];
+    for (var i = 0; i < fingers; i++) {
+      var cx = fw * (i + 1) * (0.86 + rng() * 0.28);
+      var depth = shallow + (maxD - shallow) * (0.55 + rng() * 0.45);
+      tips.push([cx, depth]);
+      d += ' L' + (cx - fw * 0.3).toFixed(1) + ' ' + shallow.toFixed(1);
+      d += ' Q ' + cx.toFixed(1) + ' ' + (depth * 2 - shallow).toFixed(1) + ' ' + (cx + fw * 0.3).toFixed(1) + ' ' + shallow.toFixed(1);
     }
-    var drips = [];
-    for (i = 0; i < 3; i++) {
-      var cx = W * (0.18 + 0.6 * rng());
-      var depth = base + (maxD - base) * (0.75 + 0.35 * rng());
-      drips.push([cx, Math.min(depth, H * 0.9), 12 + rng() * 16]);
-    }
-    var d = 'M0 0 L0 ' + pts[0][1].toFixed(1);
-    for (i = 1; i < pts.length; i++) {
-      var xc = ((pts[i - 1][0] + pts[i][0]) / 2).toFixed(1);
-      var yc = ((pts[i - 1][1] + pts[i][1]) / 2).toFixed(1);
-      d += ' Q ' + pts[i - 1][0].toFixed(1) + ' ' + pts[i - 1][1].toFixed(1) + ' ' + xc + ' ' + yc;
-    }
-    d += ' L' + W + ' 0 Z';
-    var drops = drips.map(function (dr) {
-      return '<circle cx="' + dr[0].toFixed(1) + '" cy="' + dr[1].toFixed(1) + '" r="' + dr[2].toFixed(1) + '" fill="url(#lqg)"/>';
-    }).join('');
+    d += ' L' + W + ' ' + shallow.toFixed(1) + ' L' + W + ' 0 Z';
+    var drops = '';
+    tips.sort(function (a, b) { return b[1] - a[1]; }).slice(0, 2).forEach(function (tp, i) {
+      drops += '<circle cx="' + tp[0].toFixed(1) + '" cy="' + (tp[1] + 10 + rng() * 14).toFixed(1) + '" r="' + (5 + rng() * 4).toFixed(1) + '" fill="url(#lqg)"/>';
+    });
     return '<svg width="100%" height="100%" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true">' +
       '<defs>' +
         '<linearGradient id="lqg" x1="0" y1="0" x2="0" y2="1">' +
