@@ -54,7 +54,7 @@ body {
   --t-bg1: #16233a; --t-bg2: #080d18; --t-gold: #cfe0ef; --t-glow: rgba(150, 200, 255, 0.18);
 }
 [data-theme="paintings"], .theme-paintings {
-  --t-bg1: #2e1119; --t-bg2: #130609; --t-gold: #ecc078; --t-glow: rgba(255, 170, 120, 0.09);
+  --t-bg1: #14251b; --t-bg2: #08110c; --t-gold: #ecc078; --t-glow: rgba(140, 220, 175, 0.10);
 }
 
 /* ---------------- 首页 ---------------- */

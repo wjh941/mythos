@@ -19,7 +19,7 @@
   var THEMES = {
     olympus:   { bg1: '#1b2a5e', bg2: '#0b1128', glow: 'rgba(120,150,255,0.20)', gold: '#e9c877', goldDim: 'rgba(233,200,119,0.45)', ink: '#f4ead2' },
     runes:     { bg1: '#152033', bg2: '#070b14', glow: 'rgba(150,200,255,0.16)', gold: '#cfe0ef', goldDim: 'rgba(207,224,239,0.40)', ink: '#eef4fa' },
-    paintings: { bg1: '#3a1420', bg2: '#17060c', glow: 'rgba(255,170,120,0.14)', gold: '#ecc078', goldDim: 'rgba(236,192,120,0.45)', ink: '#f7ecdc' }
+    paintings: { bg1: '#152a1f', bg2: '#08110c', glow: 'rgba(140,220,175,0.14)', gold: '#ecc078', goldDim: 'rgba(236,192,120,0.45)', ink: '#f7ecdc' }
   };
 
   var HANDLE = (typeof window !== 'undefined' && window.MYTHOS_HANDLE) || '@你的小红书账号';
