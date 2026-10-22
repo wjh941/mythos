@@ -612,6 +612,82 @@ body {
 }
 #code-msg { min-height: 1.2em; margin-top: 10px; }
 
+/* ---------------- 影面深度分析面板 ---------------- */
+.analysis-panel { margin-top: 22px; }
+
+.dual-sigil {
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; margin-bottom: 22px;
+}
+.ds-item { text-align: center; color: var(--t-gold, var(--gold)); }
+.ds-item.demon { color: #cfa8f5; }
+.ds-item .sigil { width: 56px; height: 56px; display: block; margin: 0 auto 6px; }
+.ds-item b { font-size: 12px; letter-spacing: 1px; font-weight: 500; }
+.ds-link {
+  width: 64px; height: 1px;
+  background: linear-gradient(90deg, var(--gold), #cfa8f5);
+  position: relative;
+}
+.ds-link::after {
+  content: "✦"; position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -52%);
+  color: var(--t-gold, var(--gold)); font-size: 10px;
+  background: transparent;
+}
+
+.an-title {
+  font-size: 13px; letter-spacing: 3px; font-weight: 500;
+  color: var(--t-gold, var(--gold));
+  text-align: center; margin: 22px 0 12px;
+}
+.an-title:first-child { margin-top: 0; }
+
+.intensity { display: flex; align-items: center; gap: 12px; }
+.intensity-bar {
+  flex: 1; height: 10px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07); overflow: hidden;
+}
+.intensity-bar i {
+  display: block; height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, #6a4d9e, #cfa8f5);
+  box-shadow: 0 0 12px rgba(207, 168, 245, 0.5);
+  animation: barIn 1s ease both;
+}
+.intensity b { font-size: 20px; color: #cfa8f5; letter-spacing: 1px; }
+.an-copy { margin-top: 10px; font-size: 13px; color: var(--ink-dim); text-align: center; }
+
+.dim-vs {
+  border: 1px solid rgba(226, 195, 245, 0.18); border-radius: 12px;
+  padding: 12px 14px; margin-bottom: 12px;
+}
+.dim-vs-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+.dvl { font-size: 14px; letter-spacing: 2px; }
+.lvl {
+  font-size: 10px; letter-spacing: 2px; padding: 2px 10px;
+  border-radius: 999px; border: 1px solid var(--line); color: var(--ink-dim);
+}
+.lvl.hot {
+  color: #241a05; background: linear-gradient(180deg, var(--gold-hi), var(--gold));
+  border-color: transparent; font-weight: 700;
+}
+.vb-row { display: flex; align-items: center; gap: 8px; margin: 5px 0; }
+.vb-tag {
+  flex: none; width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+}
+.vb-tag.gold { border: 1px solid var(--gold); color: var(--gold); }
+.vb-tag.demon { border: 1px solid #cfa8f5; color: #cfa8f5; }
+.vb { flex: 1; height: 7px; border-radius: 999px; background: rgba(255, 255, 255, 0.07); overflow: hidden; }
+.vb i { display: block; height: 100%; border-radius: 999px; animation: barIn 0.9s ease both; }
+.vb i.god { background: linear-gradient(90deg, var(--gold-2), var(--gold)); }
+.vb i.demon { background: linear-gradient(90deg, #6a4d9e, #cfa8f5); }
+.dim-copy { margin-top: 9px; font-size: 12px; line-height: 1.8; color: var(--ink-dim); }
+.an-foot { margin-top: 16px; text-align: center; font-size: 10px; letter-spacing: 2px; color: rgba(240, 230, 210, 0.3); }
+
 /* ---------------- 章节过场 & 做题节奏 ---------------- */
 #chapter {
   position: fixed; inset: 0; z-index: 55; display: none;

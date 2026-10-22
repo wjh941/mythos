@@ -101,6 +101,60 @@
       '</div>';
   }
 
+  /* 影面深度分析：基于四维得分的可视化（数据来自真实作答） */
+  var SHADOW_DIM_COPY = {
+    pow: '支配的暗面：你说服别人越多，越难说服自己停下来。',
+    wis: '算计的暗面：赢下所有的局，输掉不设防的时刻。',
+    hea: '感受的暗面：情绪浓度越高，影子越重。',
+    act: '自由的暗面：跑得越快，身后跟得越紧。'
+  };
+
+  function renderShadowAnalysis() {
+    var box = $('#sh-analysis');
+    if (!box) return;
+    var god = state.result.winner.persona;
+    var d = demonFor(god.id);
+    if (!d || !state.result) { box.innerHTML = ''; return; }
+    var dims = (state.quiz.dims || []).map(function (dm) {
+      return { key: dm.key, label: dm.label, v: state.result.dims[dm.key] || 0 };
+    });
+    var total = dims.reduce(function (a, b) { return a + b.v; }, 0) || 1;
+    var top = dims.reduce(function (a, b) { return b.v > a.v ? b : a; }, dims[0]);
+    var intensity = Math.min(92, Math.max(35, Math.round(top.v / total * 100)));
+    function lvl(v) { return v >= 11 ? '主导' : (v >= 6 ? '活跃' : '潜伏'); }
+    function lvlCls(v) { return v >= 11 ? 'hot' : (v >= 6 ? '' : 'cool'); }
+    var rows = dims.map(function (dm) {
+      var pct = Math.round(dm.v / 16 * 100);
+      return '<div class="dim-vs">' +
+        '<div class="dim-vs-head"><span class="dvl">' + dm.label + '</span>' +
+        '<span class="lvl ' + lvlCls(dm.v) + '">' + lvl(dm.v) + '</span></div>' +
+        '<div class="vb-row"><span class="vb-tag gold">神</span><div class="vb"><i class="god" style="width:' + pct + '%"></i></div></div>' +
+        '<div class="vb-row"><span class="vb-tag demon">影</span><div class="vb"><i class="demon" style="width:' + pct + '%"></i></div></div>' +
+        '<p class="dim-copy">' + (SHADOW_DIM_COPY[dm.key] || '') + '</p>' +
+        '</div>';
+    }).join('');
+    var iCopy = intensity >= 70
+      ? '影面浓度极高——它几乎浮在表层，低谷期要格外留意。'
+      : (intensity >= 50
+        ? '中等偏高——它正在暗处持续进食。'
+        : '潜伏型——它很安静，在等你的低谷期。');
+    box.innerHTML =
+      '<div class="panel analysis-panel">' +
+        '<div class="dual-sigil">' +
+          '<div class="ds-item">' + sigilSVG(god, 'sigil') + '<b>神格 · ' + god.name + '</b></div>' +
+          '<div class="ds-link"></div>' +
+          '<div class="ds-item demon">' + sigilSVG(d, 'sigil') + '<b>影面 · ' + d.name + '</b></div>' +
+        '</div>' +
+        '<h3 class="an-title">✦ 影面浓度 ✦</h3>' +
+        '<div class="intensity">' +
+          '<div class="intensity-bar"><i style="width:' + intensity + '%"></i></div><b>' + intensity + '%</b>' +
+        '</div>' +
+        '<p class="an-copy">' + iCopy + '</p>' +
+        '<h3 class="an-title">✦ 四维神魔对照 ✦</h3>' + rows +
+        '<p class="an-foot">分析基于你的 8 次选择 · 娱乐向内容</p>' +
+      '</div>';
+  }
+
   function renderShadow() {
     var god = state.result.winner.persona;
     var d = demonFor(god.id);
@@ -127,6 +181,7 @@
     void card.offsetWidth;
     card.classList.add('reveal');
     if (juice()) juice().reveal(true);
+    renderShadowAnalysis();
   }
 
   function openShadowUnlock() {
