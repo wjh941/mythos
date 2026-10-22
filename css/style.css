@@ -49,12 +49,15 @@ body {
 /* ---------------- 主题色 ---------------- */
 [data-theme="olympus"], .theme-olympus {
   --t-bg1: #1b2a5e; --t-bg2: #0d1330; --t-gold: #e9c877; --t-glow: rgba(120, 150, 255, 0.22);
+  --shadow-color: 228deg 45% 6%;
 }
 [data-theme="runes"], .theme-runes {
   --t-bg1: #16233a; --t-bg2: #080d18; --t-gold: #cfe0ef; --t-glow: rgba(150, 200, 255, 0.18);
+  --shadow-color: 215deg 45% 6%;
 }
 [data-theme="paintings"], .theme-paintings {
   --t-bg1: #14251b; --t-bg2: #08110c; --t-gold: #ecc078; --t-glow: rgba(140, 220, 175, 0.10);
+  --shadow-color: 152deg 40% 6%;
 }
 
 /* ---------------- 首页 ---------------- */
@@ -85,14 +88,29 @@ body {
     radial-gradient(420px 200px at 80% -20%, var(--t-glow), transparent 70%) padding-box,
     linear-gradient(160deg, var(--t-bg1), var(--t-bg2)) padding-box,
     linear-gradient(160deg, rgba(247, 230, 174, 0.5), rgba(233, 200, 119, 0.14) 35%, rgba(201, 155, 63, 0.12) 62%, rgba(233, 200, 119, 0.38)) border-box;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  background-repeat: no-repeat;
+  /* 分层环境色阴影（Josh Comeau 阴影设计法），不做动画过渡 */
+  box-shadow:
+    0 1px 2px hsl(var(--shadow-color) / 0.5),
+    0 2px 4px hsl(var(--shadow-color) / 0.45),
+    0 4px 8px hsl(var(--shadow-color) / 0.4),
+    0 8px 16px hsl(var(--shadow-color) / 0.35),
+    0 16px 32px hsl(var(--shadow-color) / 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   animation: fadeUp 0.6s ease both;
   animation-delay: calc(var(--i) * 0.12s);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.25s ease;
 }
 .quiz-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 0 0 26px rgba(233, 200, 119, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 2px 3px hsl(var(--shadow-color) / 0.5),
+    0 4px 6px hsl(var(--shadow-color) / 0.45),
+    0 8px 12px hsl(var(--shadow-color) / 0.4),
+    0 16px 24px hsl(var(--shadow-color) / 0.35),
+    0 32px 48px hsl(var(--shadow-color) / 0.3),
+    0 0 30px rgba(233, 200, 119, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
 }
 /* 对角鎏金括角 */
 .quiz-card::before, .panel::before,
@@ -163,7 +181,14 @@ body {
     radial-gradient(420px 240px at 50% 0%, var(--t-glow, rgba(120, 150, 255, 0.14)), transparent 70%) padding-box,
     linear-gradient(165deg, var(--t-bg1, #1b2a5e), var(--t-bg2, #0d1330)) padding-box,
     linear-gradient(160deg, rgba(247, 230, 174, 0.45), rgba(233, 200, 119, 0.12) 35%, rgba(201, 155, 63, 0.12) 62%, rgba(233, 200, 119, 0.34)) border-box;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  background-repeat: no-repeat;
+  box-shadow:
+    0 1px 2px hsl(var(--shadow-color, 228deg 45% 6%) / 0.5),
+    0 2px 4px hsl(var(--shadow-color, 228deg 45% 6%) / 0.45),
+    0 4px 8px hsl(var(--shadow-color, 228deg 45% 6%) / 0.4),
+    0 8px 16px hsl(var(--shadow-color, 228deg 45% 6%) / 0.35),
+    0 16px 32px hsl(var(--shadow-color, 228deg 45% 6%) / 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .intro { text-align: center; }
