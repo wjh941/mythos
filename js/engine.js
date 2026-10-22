@@ -211,31 +211,61 @@
       '</div>';
   }
 
-  /* 腐蚀层：feTurbulence + feDisplacementMap 把圆形扭曲成有机墨渍，面积 ∝ 影面浓度 */
-  function corrosionSVG(intensity, seed) {
-    var f = Math.min(0.85, intensity / 100);
+  /* 液体侵蚀层：影面从顶部渗下，深度 ∝ 影面浓度（贝塞尔液指 + 位移扰动 + 悬挂液滴） */
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  function dripSVG(intensity, seed) {
     var W = 360, H = 200;
-    var per = (f * W * H) / 4 / Math.PI;
-    var r = Math.round(Math.sqrt(per) * 1.05) + 6;
-    var pos = [[15, 15], [85, 82], [82, 22], [20, 80]];
-    var circles = pos.map(function (p) {
-      return '<circle cx="' + p[0] + '%" cy="' + p[1] + '%" r="' + r + '" fill="url(#sg)"/>';
+    var rng = mulberry32(seed * 977 + 13);
+    var maxD = H * (0.2 + 0.68 * intensity / 100);
+    var base = H * 0.1;
+    var n = 26, pts = [], i, t, y;
+    for (i = 0; i <= n; i++) {
+      t = i / n;
+      y = base + (maxD - base) * (0.35 + 0.65 * Math.abs(Math.sin(t * Math.PI * 2.6 + seed)));
+      y += rng() * 8;
+      pts.push([t * W, Math.min(y, H * 0.88)]);
+    }
+    var drips = [];
+    for (i = 0; i < 3; i++) {
+      var cx = W * (0.18 + 0.6 * rng());
+      var depth = base + (maxD - base) * (0.75 + 0.35 * rng());
+      drips.push([cx, Math.min(depth, H * 0.9), 12 + rng() * 16]);
+    }
+    var d = 'M0 0 L0 ' + pts[0][1].toFixed(1);
+    for (i = 1; i < pts.length; i++) {
+      var xc = ((pts[i - 1][0] + pts[i][0]) / 2).toFixed(1);
+      var yc = ((pts[i - 1][1] + pts[i][1]) / 2).toFixed(1);
+      d += ' Q ' + pts[i - 1][0].toFixed(1) + ' ' + pts[i - 1][1].toFixed(1) + ' ' + xc + ' ' + yc;
+    }
+    d += ' L' + W + ' 0 Z';
+    var drops = drips.map(function (dr) {
+      return '<circle cx="' + dr[0].toFixed(1) + '" cy="' + dr[1].toFixed(1) + '" r="' + dr[2].toFixed(1) + '" fill="url(#lqg)"/>';
     }).join('');
     return '<svg width="100%" height="100%" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true">' +
       '<defs>' +
-        '<linearGradient id="sg" x1="0" y1="0" x2="1" y2="1">' +
-          '<stop offset="0" stop-color="#4a2a78"/><stop offset="0.55" stop-color="#2c1750"/><stop offset="1" stop-color="#190a30"/>' +
+        '<linearGradient id="lqg" x1="0" y1="0" x2="0" y2="1">' +
+          '<stop offset="0" stop-color="#4a2a78"/><stop offset="0.6" stop-color="#2c1750"/><stop offset="1" stop-color="#190a30"/>' +
         '</linearGradient>' +
-        '<filter id="er" x="-25%" y="-25%" width="150%" height="150%">' +
-          '<feTurbulence type="fractalNoise" baseFrequency="0.013 0.017" numOctaves="3" seed="' + seed + '" result="n"/>' +
-          '<feDisplacementMap in="SourceGraphic" in2="n" scale="52" xChannelSelector="R" yChannelSelector="G"/>' +
+        '<filter id="dq" x="-15%" y="-15%" width="130%" height="130%">' +
+          '<feTurbulence type="fractalNoise" baseFrequency="0.02 0.05" numOctaves="2" seed="' + (seed + 3) + '" result="n"/>' +
+          '<feDisplacementMap in="SourceGraphic" in2="n" scale="12" xChannelSelector="R" yChannelSelector="G"/>' +
         '</filter>' +
       '</defs>' +
-      '<g filter="url(#er)" opacity="0.97">' + circles + '</g>' +
+      '<g filter="url(#dq)">' +
+        '<path d="' + d + '" fill="url(#lqg)" opacity="0.97"/>' + drops +
+      '</g>' +
     '</svg>';
   }
 
-  /* 翻面英雄卡：正面神格（随影面浓度被侵蚀）/ 背面影面 */
+  /* 翻面英雄卡：正面神格（影面自顶部渗下，深度随浓度）/ 背面影面 */
   function renderShadowFlip() {
     var box = $('#sh-flip');
     if (!box) return;
@@ -247,7 +277,7 @@
     box.innerHTML =
       '<div class="flip-inner">' +
         '<div class="flip-face front">' +
-          '<div class="corrosion">' + corrosionSVG(intensity, seed) + '</div>' +
+          '<div class="corrosion">' + dripSVG(intensity, seed) + '</div>' +
           '<span class="corrosion-tag">影面侵蚀 ' + intensity + '%</span>' +
           sigilSVG(god, 'sigil') +
           '<b>神格面 · ' + god.name + '</b>' +
