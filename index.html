@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#08060f">
   <title>喵系测试局 · 神话人格研究所</title>
-  <link rel="stylesheet" href="css/style.css?v=11">
+  <link rel="stylesheet" href="css/style.css?v=12">
 </head>
 <body>
   <canvas id="fx"></canvas>
@@ -161,6 +161,8 @@
           <p id="sh-quote" class="r-quote"></p>
         </div>
 
+        <div id="sh-flip" class="flip-hero" data-action="flip-hero"></div>
+
         <div id="sh-analysis"></div>
 
         <div class="result-actions">
@@ -194,9 +196,11 @@
   <!-- GoatCounter 统计（账号 wjh941，注册完成即自动生效） -->
   <script>window.MYTHOS_STATS = { goatcounter: 'https://wjh941.goatcounter.com' };</script>
 
-  <!-- 影之人格（付费解锁）：改成你在面包多商品里发的解锁码和商品链接 -->
+  <!-- 影之人格（付费解锁）：面包多自动收款。SHOP_URL 改成你的面包多商品页；
+       MBD_API 是订单核验接口（部署在 whoyouare 项目）；UNLOCK_CODE 为人工兜底码 -->
   <script>window.MYTHOS_UNLOCK_CODE = 'MEOW-DEMON';</script>
   <script>window.MYTHOS_SHOP_URL = 'https://mianbaoduo.com/';</script>
+  <script>window.MYTHOS_MBD_API = 'https://whoyouare-five.vercel.app/api/mbd';</script>
 
   <!-- 每次更新 js/css 后把下面所有 ?v= 版本号 +1，避免回访用户吃到旧缓存 -->
   <script src="js/vendor/qrcode.min.js"></script>
@@ -208,6 +212,6 @@
   <script src="js/sharecard.js?v=7"></script>
   <script src="js/juice.js?v=6"></script>
   <script src="js/track.js?v=6"></script>
-  <script src="js/engine.js?v=7"></script>
+  <script src="js/engine.js?v=9"></script>
 </body>
 </html>

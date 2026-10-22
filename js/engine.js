@@ -76,6 +76,13 @@
   function setShadowUnlocked() {
     try { localStorage.setItem(SHADOW_KEY, '1'); } catch (e) {}
   }
+  function deviceId() {
+    try {
+      var k = 'mythos_did', v = localStorage.getItem(k);
+      if (!v) { v = 'D' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem(k, v); }
+      return v;
+    } catch (e) { return 'anon'; }
+  }
   function demonFor(godId) {
     return (window.MYTHOS_SHADOW && window.MYTHOS_SHADOW.byGod[godId]) || null;
   }
@@ -109,6 +116,30 @@
     act: '自由的暗面：跑得越快，身后跟得越紧。'
   };
 
+  /* 个性化行为倾向：维度 × 等级 → 做事方式描述（每个用户看到的组合不同） */
+  var SHADOW_BEHAVIOR = {
+    pow: {
+      hot: '处理事情时你倾向直接接管——分配、拍板、兜底一气呵成；你的影面也在这里进食：别人慢半拍，你的耐心就少一分。',
+      mid: '你做事偏向定方向不定细节——大事你说了算，小事懒得管；影面偶尔借"负责"之名，插手你的关系。',
+      cool: '你很少抢占主导，但影面在等你失控的那一次：被逼到墙角时，你可能比谁都强硬。'
+    },
+    wis: {
+      hot: '你习惯先在脑内推演三步再落子，说你"想太多"的人多半没跟上你；影面借此提醒：赢面之外，还有感受。',
+      mid: '你处理问题偏好抓关键路径，细节交给直觉；影面小声说：再算一步就万无一失——别全听它的。',
+      cool: '你更信任经验和手感，而非纸面推演；影面藏在那些"你其实早有预感"的瞬间里。'
+    },
+    hea: {
+      hot: '你做事由情绪浓度驱动——热爱的全力投入，无感的寸步难行；影面便借着这份浓度，索取更多关注。',
+      mid: '你处理关系偏感受流：氛围对了什么都好说；影面在氛围崩塌时现身，放大那一点不对劲。',
+      cool: '你倾向把感受调成静音再处理事情；影面藏在深夜——那些没消化的情绪，都记着账。'
+    },
+    act: {
+      hot: '你处理事情讲究即时行动：先动起来再校准；影面随行，让你偶尔把"开始新事情"当成逃避旧事情。',
+      mid: '你喜欢推进中的多线任务，讨厌原地等待；影面在你排队的时候低语：不如下一轮再说。',
+      cool: '你更愿意谋定后动，但影面会积攒冲动——某次突然的"说走就走"，就是它在敲门。'
+    }
+  };
+
   function renderShadowAnalysis() {
     var box = $('#sh-analysis');
     if (!box) return;
@@ -120,17 +151,31 @@
     });
     var total = dims.reduce(function (a, b) { return a + b.v; }, 0) || 1;
     var top = dims.reduce(function (a, b) { return b.v > a.v ? b : a; }, dims[0]);
-    var intensity = Math.min(92, Math.max(35, Math.round(top.v / total * 100)));
+    var low = dims.reduce(function (a, b) { return b.v < a.v ? b : a; }, dims[0]);
+    /* 神影分化模型：影面在最强处进食（×1.2），在最弱处藏身（补足差的八成），其余游走（×0.6） */
+    dims.forEach(function (dm) {
+      var s;
+      if (dm.key === top.key) s = Math.min(16, Math.round(dm.v * 1.2));
+      else if (dm.key === low.key) s = Math.round((16 - dm.v) * 0.8);
+      else s = Math.round(dm.v * 0.6);
+      dm.godV = dm.v;
+      dm.shadowV = Math.max(1, s);
+    });
+    var intensity = Math.min(92, Math.max(35, Math.round(top.shadowV / 16 * 100)));
     function lvl(v) { return v >= 11 ? '主导' : (v >= 6 ? '活跃' : '潜伏'); }
+    function lvlKey(v) { return v >= 11 ? 'hot' : (v >= 6 ? 'mid' : 'cool'); }
     function lvlCls(v) { return v >= 11 ? 'hot' : (v >= 6 ? '' : 'cool'); }
     var rows = dims.map(function (dm) {
-      var pct = Math.round(dm.v / 16 * 100);
+      var godPct = Math.round(dm.godV / 16 * 100);
+      var shPct = Math.round(dm.shadowV / 16 * 100);
+      var behavior = (SHADOW_BEHAVIOR[dm.key] && SHADOW_BEHAVIOR[dm.key][lvlKey(dm.godV)]) || '';
       return '<div class="dim-vs">' +
         '<div class="dim-vs-head"><span class="dvl">' + dm.label + '</span>' +
-        '<span class="lvl ' + lvlCls(dm.v) + '">' + lvl(dm.v) + '</span></div>' +
-        '<div class="vb-row"><span class="vb-tag gold">神</span><div class="vb"><i class="god" style="width:' + pct + '%"></i></div></div>' +
-        '<div class="vb-row"><span class="vb-tag demon">影</span><div class="vb"><i class="demon" style="width:' + pct + '%"></i></div></div>' +
-        '<p class="dim-copy">' + (SHADOW_DIM_COPY[dm.key] || '') + '</p>' +
+        '<span class="lvl ' + lvlCls(dm.godV) + '">' + lvl(dm.godV) + '</span></div>' +
+        '<div class="vb-row"><span class="vb-tag gold">神</span><div class="vb"><i class="god" style="width:' + godPct + '%"></i><em class="vb-val">' + godPct + '</em></div></div>' +
+        '<div class="vb-row"><span class="vb-tag demon">影</span><div class="vb"><i class="demon" style="width:' + shPct + '%"></i><em class="vb-val">' + shPct + '</em></div></div>' +
+        '<p class="dim-copy">' + behavior + '</p>' +
+        '<p class="dim-flavor">' + (SHADOW_DIM_COPY[dm.key] || '') + '</p>' +
         '</div>';
     }).join('');
     var iCopy = intensity >= 70
@@ -140,6 +185,7 @@
         : '潜伏型——它很安静，在等你的低谷期。');
     box.innerHTML =
       '<div class="panel analysis-panel">' +
+        '<p class="an-note">影面在你最长的维度里进食，在最短的维度里藏身——这是它对你的了解。</p>' +
         '<div class="dual-sigil">' +
           '<div class="ds-item">' + sigilSVG(god, 'sigil') + '<b>神格 · ' + god.name + '</b></div>' +
           '<div class="ds-link"></div>' +
@@ -152,6 +198,26 @@
         '<p class="an-copy">' + iCopy + '</p>' +
         '<h3 class="an-title">✦ 四维神魔对照 ✦</h3>' + rows +
         '<p class="an-foot">分析基于你的 8 次选择 · 娱乐向内容</p>' +
+      '</div>';
+  }
+
+  /* 翻面英雄卡：正面神格 / 背面影面 */
+  function renderShadowFlip() {
+    var box = $('#sh-flip');
+    if (!box) return;
+    var god = state.result.winner.persona;
+    var d = demonFor(god.id);
+    if (!d) { box.innerHTML = ''; return; }
+    box.innerHTML =
+      '<div class="flip-inner">' +
+        '<div class="flip-face front">' + sigilSVG(god, 'sigil') +
+          '<b>神格面 · ' + god.name + '</b>' +
+          '<span class="flip-hint">轻触翻面 · 看见另一面</span>' +
+        '</div>' +
+        '<div class="flip-face back">' + sigilSVG(d, 'sigil') +
+          '<b>影面 · ' + d.name + '</b>' +
+          '<span class="flip-hint">再点一次 · 翻回光面</span>' +
+        '</div>' +
       '</div>';
   }
 
@@ -181,6 +247,7 @@
     void card.offsetWidth;
     card.classList.add('reveal');
     if (juice()) juice().reveal(true);
+    renderShadowFlip();
     renderShadowAnalysis();
   }
 
@@ -190,17 +257,73 @@
       '<h3>解锁影之人格</h3>' +
       '<p class="modal-tip">与「' + state.result.winner.persona.name + '」共生的另一面</p>' +
       '<div class="pay-steps">' +
-        '<div class="pay-step"><b>① 复制购买链接</b><span>浏览器打开，找到「影之人格解锁码」</span></div>' +
-        '<div class="pay-step"><b>② 微信 / 支付宝付款</b><span>限时 6.6 元 · 商品详情内含解锁码</span></div>' +
-        '<div class="pay-step"><b>③ 回到这里输入解锁码</b><span>一次解锁 · 永久有效 · 全部测试通用</span></div>' +
+        '<div class="pay-step"><b>① 前往面包多付款</b><span>限时 6.6 元 · 微信 / 支付宝 · 自动发货</span></div>' +
+        '<div class="pay-step"><b>② 复制支付完成页的「订单号」</b><span>在面包多「我的订单」里随时能找到</span></div>' +
+        '<div class="pay-step"><b>③ 回到这里粘贴订单号</b><span>核验通过立即解锁 · 永久有效</span></div>' +
       '</div>' +
-      '<button class="btn btn-gold pay-copy" data-action="copy-shop-link">✦ 复制购买链接</button>' +
+      '<div style="display:flex;gap:8px;">' +
+        '<button class="btn btn-gold pay-copy" data-action="goto-shop" style="flex:1">✦ 前往面包多付款</button>' +
+        '<button class="btn btn-ghost" data-action="copy-shop-link">复制链接</button>' +
+      '</div>' +
+      '<div class="code-row">' +
+        '<input id="order-input" class="code-input" placeholder="粘贴面包多订单号" autocomplete="off" spellcheck="false">' +
+        '<button class="btn btn-ghost" data-action="submit-order">验证解锁</button>' +
+      '</div>' +
+      '<p class="modal-tip" id="code-msg"></p>' +
+      '<p class="modal-tip"><a href="javascript:void(0)" data-action="open-shadow-unlock-code" style="opacity:.7">手里有解锁码？从这里输入 →</a></p>'
+    );
+  }
+
+  function openShadowUnlockCode() {
+    openModal(
+      '<h3>使用解锁码</h3>' +
       '<div class="code-row">' +
         '<input id="code-input" class="code-input" placeholder="输入解锁码" autocomplete="off" spellcheck="false">' +
         '<button class="btn btn-ghost" data-action="submit-code">解锁</button>' +
       '</div>' +
       '<p class="modal-tip" id="code-msg"></p>'
     );
+  }
+
+  function gotoShop() {
+    var url = String(window.MYTHOS_SHOP_URL || '');
+    if (!url) return;
+    track('shadow-shop-goto');
+    var w = window.open(url, '_blank');
+    if (!w) copyShopLink();
+  }
+
+  function submitOrder() {
+    var input = $('#order-input');
+    if (!input) return;
+    var msg = $('#code-msg');
+    var oid = (input.value || '').trim();
+    if (!oid) { msg.textContent = '先粘贴面包多的订单号'; return; }
+    if (!String(window.MYTHOS_MBD_API || '')) { msg.textContent = '订单核验通道未配置——点下方「有解锁码」输入'; return; }
+    var btn = $('[data-action="submit-order"]');
+    btn.disabled = true; btn.textContent = '核验中…';
+    fetch(window.MYTHOS_MBD_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order_id: oid, device: deviceId() })
+    }).then(function (r) {
+      return r.json().then(function (j) { return { s: r.status, j: j }; });
+    }).then(function (res) {
+      if (res.s === 200 && res.j && res.j.ok) {
+        setShadowUnlocked();
+        track('shadow-unlocked', 'mbd');
+        closeModal();
+        renderShadowTeaser();
+        renderShadow();
+      } else {
+        btn.disabled = false; btn.textContent = '验证解锁';
+        msg.textContent = (res.j && (res.j.detail || res.j.error)) || '核验未通过——确认订单号复制完整，或改用解锁码输入';
+        input.classList.remove('shake'); void input.offsetWidth; input.classList.add('shake');
+      }
+    }).catch(function () {
+      btn.disabled = false; btn.textContent = '验证解锁';
+      msg.textContent = '网络开小差了，再试一次；或改用解锁码输入';
+    });
   }
 
   function submitCode() {
@@ -632,9 +755,16 @@
     'open-shadow': renderShadow,
     'open-shadow-unlock': openShadowUnlock,
     'submit-code': submitCode,
+    'submit-order': submitOrder,
+    'goto-shop': gotoShop,
+    'open-shadow-unlock-code': openShadowUnlockCode,
     'copy-shop-link': copyShopLink,
     'share-shadow': openShadowShare,
     'back-result': function () { show('result'); },
+    'flip-hero': function (el) {
+      el.classList.toggle('flipped');
+      if (juice()) juice().select();
+    },
     'skip-suspense': endSuspense,
     'toggle-sound': function () {
       if (!juice()) return;
