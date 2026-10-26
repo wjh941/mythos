@@ -298,19 +298,41 @@
     track('shadow-pay-click');
     openModal(
       '<h3>解锁影之人格</h3>' +
-      '<p class="modal-tip">与「' + state.result.winner.persona.name + '」共生的另一面</p>' +
-      '<div class="pay-steps">' +
-        '<div class="pay-step"><b>① 复制购买链接</b><span>浏览器打开，找到「影之人格解锁码」</span></div>' +
-        '<div class="pay-step"><b>② 微信 / 支付宝付款</b><span>限时 6.6 元 · 商品详情内含解锁码</span></div>' +
-        '<div class="pay-step"><b>③ 回到这里输入解锁码</b><span>一次解锁 · 永久有效 · 全部测试通用</span></div>' +
+      '<p class="modal-tip">与「' + state.result.winner.persona.name + '」共生的另一面 · 限时 6.6 元（原价 9.9）</p>' +
+      '<div class="pay-channel primary">' +
+        '<b>✦ 渠道一 · 爱发电（即刻可用）</b>' +
+        '<span>微信 / 支付宝付款 → 在档位详情里复制解锁码 → 粘贴到下方解锁</span>' +
+        '<button class="btn btn-gold pay-copy" data-action="goto-afidian">✦ 前往爱发电付款</button>' +
       '</div>' +
-      '<button class="btn btn-gold pay-copy" data-action="copy-shop-link">✦ 复制购买链接</button>' +
       '<div class="code-row">' +
-        '<input id="code-input" class="code-input" placeholder="输入解锁码" autocomplete="off" spellcheck="false">' +
+        '<input id="code-input" class="code-input" placeholder="粘贴解锁码" autocomplete="off" spellcheck="false">' +
         '<button class="btn btn-ghost" data-action="submit-code">解锁</button>' +
       '</div>' +
-      '<p class="modal-tip" id="code-msg"></p>'
+      '<p class="modal-tip" id="code-msg"></p>' +
+      '<div class="pay-channel pending">' +
+        '<b>渠道二 · 面包多（审核中 · 即将开放）</b>' +
+        '<span>上线后支持订单号自动核验</span>' +
+        '<span class="alt-links">' +
+          '<a href="javascript:void(0)" data-action="goto-shop">前往面包多</a> · ' +
+          '<a href="javascript:void(0)" data-action="open-shadow-unlock-code">订单号核验入口</a> · ' +
+          '<a href="javascript:void(0)" data-action="copy-shop-link">复制链接</a>' +
+        '</span>' +
+      '</div>'
     );
+  }
+
+  function gotoAfdian() {
+    var url = String(window.MYTHOS_AFDIAN_URL || '');
+    if (!url) return;
+    track('afidian-goto');
+    var w = window.open(url, '_blank');
+    if (!w) {
+      var ta = document.createElement('textarea');
+      ta.value = url; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); ta.remove();
+      var msg = $('#code-msg');
+      if (msg) msg.textContent = '弹窗被拦截——链接已复制，去浏览器打开付款';
+    }
   }
 
   function submitCode() {
@@ -766,6 +788,7 @@
     'copy-daily-text': copyDailyText,
     'open-shadow': renderShadow,
     'open-archive': function (el) { openArchiveEntry(Number(el.dataset.ts)); },
+    'goto-afidian': gotoAfdian,
     'open-shadow-unlock': openShadowUnlock,
     'submit-code': submitCode,
     'copy-shop-link': copyShopLink,

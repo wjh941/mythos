@@ -639,6 +639,20 @@ body {
 }
 #code-msg { min-height: 1.2em; margin-top: 10px; }
 
+/* 双渠道付款卡片 */
+.pay-channel {
+  border: 1px solid var(--line); border-radius: 12px;
+  padding: 12px 14px; margin-top: 12px; text-align: left;
+}
+.pay-channel.primary { border-color: rgba(226, 195, 245, 0.45); }
+.pay-channel.pending { opacity: 0.6; }
+.pay-channel b { display: block; font-size: 13.5px; letter-spacing: 1px; color: var(--gold); }
+.pay-channel span { display: block; margin-top: 3px; font-size: 12px; color: var(--ink-dim); line-height: 1.6; }
+.pay-channel .pay-copy { margin-top: 10px; width: 100%; font-size: 13.5px; padding: 10px 14px; letter-spacing: 2px; }
+.alt-links { margin-top: 8px; display: block; }
+.alt-links a { color: var(--ink-dim); text-decoration: none; border-bottom: 1px dotted var(--line); }
+.alt-links a:hover { color: var(--gold); }
+
 /* ---------------- 翻面英雄卡（神格 / 影面） ---------------- */
 .flip-hero {
   perspective: 1200px; height: 168px;
