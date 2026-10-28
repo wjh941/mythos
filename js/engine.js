@@ -627,7 +627,34 @@
     state.result = res;
     unlock(state.quiz.id, res.winner.persona.id);
     saveToArchive(state.quiz, res);
+    saveToSharedArchive(state.quiz, res);
     runSuspense(renderResult);
+  }
+
+  /**
+   * 跨产品共享存档：写入 testlab_shared_results（与 MiniFlow 等同域产品共享 localStorage）。
+   * 用户在任意测评产品测完，打开 MiniFlow 就能看到全部历史结果。
+   */
+  function saveToSharedArchive(quiz, res) {
+    try {
+      var KEY = 'testlab_shared_results';
+      var list = [];
+      try { list = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { list = []; }
+      var personaName = res.winner.persona.name || res.winner.persona.id || '';
+      var title = quiz.title || quiz.id;
+      // 去重：同产品同日期只保留最新一条
+      var today = new Date().toISOString().slice(0, 10);
+      list = list.filter(function (e) { return !(e.product === 'mythos' && e.date === today); });
+      list.push({
+        product: 'mythos',
+        test: title,
+        result: personaName,
+        match: res.match,
+        date: today,
+        ts: Date.now()
+      });
+      try { localStorage.setItem(KEY, JSON.stringify(list.slice(0, 50))); } catch (e) {}
+    } catch (e) { /* 共享存档失败不影响主流程 */ }
   }
 
   /* ---------------- 结果页 ---------------- */
